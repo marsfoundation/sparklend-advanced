@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import "../src/FixedPriceOracle.sol";
+import { FixedPriceOracle } from "../src/FixedPriceOracle.sol";
 
 contract FixedPriceOracleTest is Test {
 
