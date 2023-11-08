@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.0;
 
-import "forge-std/Test.sol";
+import "./InterestRateStrategyBase.t.sol";
 
 import { RateSourceMock } from "./mocks/RateSourceMock.sol";
 
@@ -10,7 +10,7 @@ import {
     IPoolAddressesProvider
 } from "../src/RateTargetBaseInterestRateStrategy.sol";
 
-contract RateTargetBaseInterestRateStrategyTest is Test {
+contract RateTargetBaseInterestRateStrategyTest is InterestRateStrategyBaseTest {
 
     RateSourceMock rateSource;
 
@@ -22,7 +22,7 @@ contract RateTargetBaseInterestRateStrategyTest is Test {
         interestStrategy = new RateTargetBaseInterestRateStrategy({
             provider: IPoolAddressesProvider(address(123)),
             rateSource: address(rateSource),
-            optimalUsageRatio: 0,
+            optimalUsageRatio: 0.8e27,
             baseVariableBorrowRateSpread: 0.005e27,
             variableRateSlope1: 0.01e27,
             variableRateSlope2: 0.45e27,
@@ -32,15 +32,17 @@ contract RateTargetBaseInterestRateStrategyTest is Test {
             stableRateExcessOffset: 0,
             optimalStableToTotalDebtRatio: 0
         });
+
+        initBase(interestStrategy);
     }
 
     function test_constructor() public {
         assertEq(address(interestStrategy.ADDRESSES_PROVIDER()), address(123));
         assertEq(address(interestStrategy.RATE_SOURCE()),        address(rateSource));
 
-        assertEq(interestStrategy.OPTIMAL_USAGE_RATIO(),                   0);
+        assertEq(interestStrategy.OPTIMAL_USAGE_RATIO(),                   0.8e27);
         assertEq(interestStrategy.OPTIMAL_STABLE_TO_TOTAL_DEBT_RATIO(),    0);
-        assertEq(interestStrategy.MAX_EXCESS_USAGE_RATIO(),                1e27);
+        assertEq(interestStrategy.MAX_EXCESS_USAGE_RATIO(),                0.2e27);
         assertEq(interestStrategy.MAX_EXCESS_STABLE_TO_TOTAL_DEBT_RATIO(), 1e27);
 
         assertEq(interestStrategy.getVariableRateSlope1(),     0.01e27);
