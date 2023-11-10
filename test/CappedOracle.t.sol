@@ -21,6 +21,16 @@ contract CappedOracleTest is Test {
     function test_constructor() public {
         assertEq(oracle.latestAnswer(), 0.8e8);
         assertEq(oracle.decimals(),     8);
+        
+        assertEq(address(oracle.source()), address(priceSource));
+    }
+
+    function test_maxPrice_invalid() public {
+       vm.expectRevert("CappedOracle/invalid-max-price");
+       new CappedOracle(address(priceSource), 0);
+
+       vm.expectRevert("CappedOracle/invalid-max-price");
+       new CappedOracle(address(priceSource), -1);
     }
 
     function test_price_at_max() public {
