@@ -23,6 +23,7 @@ contract FixedPriceOracleIntegrationTest is Test {
     }
 
     function test_replace_dai_oracle() public {
+        // Nothing is special about this number, it just happens to be the price at this block
         assertEq(aaveOracle.getAssetPrice(dai), 1.00001809e8);
 
         address[] memory assets = new address[](1);
