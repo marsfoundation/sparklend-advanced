@@ -9,18 +9,15 @@ import { FixedPriceOracle } from "../src/FixedPriceOracle.sol";
 
 contract FixedPriceOracleIntegrationTest is Test {
 
-    IAaveOracle aaveOracle;
-    address dai;
-    address admin;
+    IAaveOracle aaveOracle = IAaveOracle(0x8105f69D9C41644c6A0803fDA7D03Aa70996cFD9);
+
+    address dai   = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address admin = 0x3300f198988e4C9C63F75dF86De36421f06af8c4;     // SubDAO Proxy
 
     FixedPriceOracle oracle;
 
     function setUp() public {
         vm.createSelectFork(getChain("mainnet").rpcUrl, 18_492_860);
-
-        aaveOracle = IAaveOracle(0x8105f69D9C41644c6A0803fDA7D03Aa70996cFD9);
-        dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
-        admin = 0x3300f198988e4C9C63F75dF86De36421f06af8c4;
 
         oracle = new FixedPriceOracle(1e8);
     }

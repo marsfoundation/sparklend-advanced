@@ -14,7 +14,7 @@ contract FixedPriceOracleTest is Test {
     }
 
     function test_constructor() public {
-        assertEq(oracle.price(), 123e8);
+        assertEq(oracle.price(),    123e8);
         assertEq(oracle.decimals(), 8);
     }
 
@@ -24,6 +24,10 @@ contract FixedPriceOracleTest is Test {
 
         vm.expectRevert("FixedPriceOracle/invalid-price");
         new FixedPriceOracle(-1);
+    }
+
+    function test_latestAnswer() public {
+        assertEq(oracle.latestAnswer(), 123e8);
     }
 
 }
