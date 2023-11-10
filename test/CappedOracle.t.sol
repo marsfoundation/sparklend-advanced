@@ -20,7 +20,7 @@ contract CappedOracleTest is Test {
 
     function test_constructor() public {
         assertEq(oracle.latestAnswer(), 0.8e8);
-        assertEq(oracle.decimals(), 8);
+        assertEq(oracle.decimals(),     8);
     }
 
     function test_price_at_max() public {
@@ -33,6 +33,12 @@ contract CappedOracleTest is Test {
         assertEq(oracle.latestAnswer(), 0.8e8);
         priceSource.setLatestAnswer(1e8 + 1);
         assertEq(oracle.latestAnswer(), 1e8);
+    }
+
+    function test_price_below_max() public {
+        assertEq(oracle.latestAnswer(), 0.8e8);
+        priceSource.setLatestAnswer(1e8 - 1);
+        assertEq(oracle.latestAnswer(), 1e8 - 1);
     }
 
     function test_price_below_zero() public {
