@@ -43,13 +43,13 @@ abstract contract InterestRateStrategyBaseTest is Test {
     ) public {
         // Bound everything to reasonable values
         // Disable stable borrow stuff
-        liquidityAvailable       = bound(liquidityAvailable, 0, MAX_TOKEN_AMOUNT);
-        params.unbacked          = bound(params.unbacked, 0, MAX_TOKEN_AMOUNT);
+        liquidityAvailable       = bound(liquidityAvailable,    0, MAX_TOKEN_AMOUNT);
+        params.unbacked          = bound(params.unbacked,       0, MAX_TOKEN_AMOUNT);
         params.liquidityAdded    = bound(params.liquidityAdded, 0, MAX_TOKEN_AMOUNT);
         params.liquidityTaken    = bound(params.liquidityTaken, 0, liquidityAvailable + params.liquidityAdded);
         params.totalStableDebt   = 0;
         params.totalVariableDebt = bound(params.totalVariableDebt, 0, MAX_TOKEN_AMOUNT);
-        params.reserveFactor     = bound(params.reserveFactor, 0, 100_00);
+        params.reserveFactor     = bound(params.reserveFactor,     0, 100_00);
         params.reserve           = address(asset);
         params.aToken            = makeAddr("aToken");
 
@@ -66,7 +66,7 @@ abstract contract InterestRateStrategyBaseTest is Test {
             uint256 actualVariableBorrowRate
         ) = interestStrategy.calculateInterestRates(params);
 
-        assertEq(expectedLiquidityRate, actualLiquidityRate, "liquidity rate mismatch");
+        assertEq(expectedLiquidityRate,      actualLiquidityRate,      "liquidity rate mismatch");
         assertEq(expectedVariableBorrowRate, actualVariableBorrowRate, "variable borrow rate mismatch");
     }
 
