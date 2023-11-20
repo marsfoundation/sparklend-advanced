@@ -18,7 +18,7 @@ import { IPoolAddressesProvider } from 'aave-v3-core/contracts/interfaces/IPoolA
  * point of usage and another from that one to 100%.
  * - An instance of this same contract, can't be used across different Aave markets, due to the caching
  *   of the PoolAddressesProvider
- * - Note: This is a modified version with the stable borrow feature disabled.
+ * - Note: This is a modified version of DefaultReserveInterestRateStrategy with the stable borrow feature disabled.
  */
 contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
     using WadRayMath for uint256;
