@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import { IERC20 } from 'aave-v3-core/contracts/dependencies/openzeppelin/contracts/IERC20.sol';
-import { WadRayMath } from 'aave-v3-core/contracts/protocol/libraries/math/WadRayMath.sol';
-import { PercentageMath } from 'aave-v3-core/contracts/protocol/libraries/math/PercentageMath.sol';
-import { DataTypes } from 'aave-v3-core/contracts/protocol/libraries/types/DataTypes.sol';
-import { Errors } from 'aave-v3-core/contracts/protocol/libraries/helpers/Errors.sol';
+import { IERC20 }                       from 'aave-v3-core/contracts/dependencies/openzeppelin/contracts/IERC20.sol';
+import { WadRayMath }                   from 'aave-v3-core/contracts/protocol/libraries/math/WadRayMath.sol';
+import { PercentageMath }               from 'aave-v3-core/contracts/protocol/libraries/math/PercentageMath.sol';
+import { DataTypes }                    from 'aave-v3-core/contracts/protocol/libraries/types/DataTypes.sol';
+import { Errors }                       from 'aave-v3-core/contracts/protocol/libraries/helpers/Errors.sol';
 import { IDefaultInterestRateStrategy } from 'aave-v3-core/contracts/interfaces/IDefaultInterestRateStrategy.sol';
 import { IReserveInterestRateStrategy } from 'aave-v3-core/contracts/interfaces/IReserveInterestRateStrategy.sol';
-import { IPoolAddressesProvider } from 'aave-v3-core/contracts/interfaces/IPoolAddressesProvider.sol';
+import { IPoolAddressesProvider }       from 'aave-v3-core/contracts/interfaces/IPoolAddressesProvider.sol';
 
 /**
  * @title VariableBorrowInterestRateStrategy contract
