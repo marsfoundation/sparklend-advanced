@@ -75,12 +75,13 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
         uint256 variableRateSlope2
     ) {
         require(WadRayMath.RAY >= optimalUsageRatio, Errors.INVALID_OPTIMAL_USAGE_RATIO);
-        OPTIMAL_USAGE_RATIO = optimalUsageRatio;
-        MAX_EXCESS_USAGE_RATIO = WadRayMath.RAY - optimalUsageRatio;
-        ADDRESSES_PROVIDER = provider;
+
+        OPTIMAL_USAGE_RATIO     = optimalUsageRatio;
+        MAX_EXCESS_USAGE_RATIO  = WadRayMath.RAY - optimalUsageRatio;
+        ADDRESSES_PROVIDER      = provider;
         _baseVariableBorrowRate = baseVariableBorrowRate;
-        _variableRateSlope1 = variableRateSlope1;
-        _variableRateSlope2 = variableRateSlope2;
+        _variableRateSlope1     = variableRateSlope1;
+        _variableRateSlope2     = variableRateSlope2;
     }
 
     /// @inheritdoc IDefaultInterestRateStrategy
