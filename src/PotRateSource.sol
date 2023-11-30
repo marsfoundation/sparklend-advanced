@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.0;
 
-import { IRateSource } from './interfaces/IRateSource.sol';
+import { IRateSource } from "./interfaces/IRateSource.sol";
 
 interface IPot {
     function dsr() external view returns (uint256);

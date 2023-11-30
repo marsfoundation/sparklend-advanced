@@ -17,9 +17,9 @@ contract SparkDaiMarketInterestRateStrategyIntegrationTest is Test {
     IPool pool                                   = IPool(0xC13e21B648A5Ee794902342038FF3aDAB66BE987);
     IPoolConfigurator configurator               = IPoolConfigurator(0x542DBa469bdE58FAeE189ffB60C6b49CE60E0738);
 
-    address dai          = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
-    address pot          = 0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7;
-    address admin        = 0x3300f198988e4C9C63F75dF86De36421f06af8c4;     // SubDAO Proxy
+    address dai   = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address pot   = 0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7;
+    address admin = 0x3300f198988e4C9C63F75dF86De36421f06af8c4;     // SubDAO Proxy
 
     PotRateSource                      rateSource;
     RateTargetBaseInterestRateStrategy interestStrategy;
@@ -30,16 +30,16 @@ contract SparkDaiMarketInterestRateStrategyIntegrationTest is Test {
         rateSource = new PotRateSource(pot);
 
         interestStrategy = new RateTargetBaseInterestRateStrategy({
-            provider: poolAddressesProvider,
-            rateSource: address(rateSource),
-            optimalUsageRatio: 1e27,
-            baseVariableBorrowRateSpread: 0.005e27,
-            variableRateSlope1: 0,
-            variableRateSlope2: 0,
-            stableRateSlope1: 0,
-            stableRateSlope2: 0,
-            baseStableRateOffset: 0,
-            stableRateExcessOffset: 0,
+            provider:                      poolAddressesProvider,
+            rateSource:                    address(rateSource),
+            optimalUsageRatio:             1e27,
+            baseVariableBorrowRateSpread:  0.005e27,
+            variableRateSlope1:            0,
+            variableRateSlope2:            0,
+            stableRateSlope1:              0,
+            stableRateSlope2:              0,
+            baseStableRateOffset:          0,
+            stableRateExcessOffset:        0,
             optimalStableToTotalDebtRatio: 0
         });
     }
