@@ -14,8 +14,8 @@ import { RateTargetBaseInterestRateStrategy } from "../src/RateTargetBaseInteres
 contract SparkDaiMarketInterestRateStrategyIntegrationTest is Test {
 
     IPoolAddressesProvider poolAddressesProvider = IPoolAddressesProvider(0x02C3eA4e34C0cBd694D2adFa2c690EECbC1793eE);
-    IPool                  pool                  =                  IPool(0xC13e21B648A5Ee794902342038FF3aDAB66BE987);
-    IPoolConfigurator      configurator          =      IPoolConfigurator(0x542DBa469bdE58FAeE189ffB60C6b49CE60E0738);
+    IPool                  pool                  = IPool(0xC13e21B648A5Ee794902342038FF3aDAB66BE987);
+    IPoolConfigurator      configurator          = IPoolConfigurator(0x542DBa469bdE58FAeE189ffB60C6b49CE60E0738);
 
     address dai   = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address pot   = 0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7;
