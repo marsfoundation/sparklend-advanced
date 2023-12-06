@@ -57,16 +57,46 @@ contract SparkDaiMarketInterestRateStrategyIntegrationTest is Test {
         );
 
         // Trigger an update from the new IRM
-        deal(dai, address(this), 1e18);
-        IERC20(dai).approve(address(pool), type(uint256).max);
-        pool.supply(dai, 1e18, address(this), 0);
+        _triggerUpdate();
 
-        // Should be unchanged
+        // Should be unchanged because the borrow spread is the same for both
         assertEq(_getBorrowRate(), currentBorrowRate);
+
+        // Change the borrow spread to 1%
+        interestStrategy = new RateTargetBaseInterestRateStrategy({
+            provider:                      poolAddressesProvider,
+            rateSource:                    address(rateSource),
+            optimalUsageRatio:             1e27,
+            baseVariableBorrowRateSpread:  0.01e27,
+            variableRateSlope1:            0,
+            variableRateSlope2:            0,
+            stableRateSlope1:              0,
+            stableRateSlope2:              0,
+            baseStableRateOffset:          0,
+            stableRateExcessOffset:        0,
+            optimalStableToTotalDebtRatio: 0
+        });
+        vm.prank(admin);
+        configurator.setReserveInterestRateStrategyAddress(
+            dai,
+            address(interestStrategy)
+        );
+
+        // Trigger an update from the new IRM
+        _triggerUpdate();
+
+        // Should be 0.5% higher than before
+        assertEq(_getBorrowRate(), 0.058790164207174267760128000e27);
     }
 
     function _getBorrowRate() internal view returns (uint256) {
         return pool.getReserveData(dai).currentVariableBorrowRate;
+    }
+
+    function _triggerUpdate() internal {
+        deal(dai, address(this), 1e18);
+        IERC20(dai).approve(address(pool), type(uint256).max);
+        pool.supply(dai, 1e18, address(this), 0);
     }
 
 }
