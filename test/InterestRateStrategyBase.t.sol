@@ -66,7 +66,7 @@ abstract contract InterestRateStrategyBaseTest is Test {
             uint256 actualVariableBorrowRate
         ) = interestStrategy.calculateInterestRates(params);
 
-        // Small diff from simplifying the stable borrow stuff
+        // Small diff from simplifying the stable borrow stuff which removes rounding errors from integer division
         assertApproxEqRel(expectedLiquidityRate, actualLiquidityRate, 0.0000001e18, "liquidity rate mismatch");
         assertEq(expectedVariableBorrowRate, actualVariableBorrowRate, "variable borrow rate mismatch");
     }
