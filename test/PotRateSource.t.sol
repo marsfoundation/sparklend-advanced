@@ -21,6 +21,7 @@ contract PotMock {
 
 contract PotRateSourceTest is Test {
 
+    // To calculate: bc -l <<< 'scale=27; e( l(1.05)/(60 * 60 * 24 * 365) )'
     uint256 constant FIVE_PCT_APY_DSR = 1.000000001547125957863212448e27;
     uint256 constant FIVE_PCT_APY_APR = 0.048790164207174267760128000e27;
 
