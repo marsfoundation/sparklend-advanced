@@ -86,7 +86,7 @@ contract SparkDaiMarketInterestRateStrategyIntegrationTest is Test {
         _triggerUpdate();
 
         // Should be 0.5% higher than before
-        assertEq(_getBorrowRate(), 0.058790164207174267760128000e27);
+        assertEq(_getBorrowRate(), currentBorrowRate + 0.005e27);
     }
 
     function _getBorrowRate() internal view returns (uint256) {
