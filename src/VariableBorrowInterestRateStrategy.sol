@@ -21,20 +21,14 @@ import { IPoolAddressesProvider }       from 'aave-v3-core/contracts/interfaces/
  * - Note: This is a modified version of DefaultReserveInterestRateStrategy with the stable borrow feature disabled.
  */
 contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
-    using WadRayMath for uint256;
+
+    using WadRayMath     for uint256;
     using PercentageMath for uint256;
 
-    /// @inheritdoc IDefaultInterestRateStrategy
     uint256 public override immutable OPTIMAL_USAGE_RATIO;
-
-    /// @inheritdoc IDefaultInterestRateStrategy
-    uint256 public override constant OPTIMAL_STABLE_TO_TOTAL_DEBT_RATIO = 0;
-
-    /// @inheritdoc IDefaultInterestRateStrategy
+    uint256 public override constant  OPTIMAL_STABLE_TO_TOTAL_DEBT_RATIO = 0;
     uint256 public override immutable MAX_EXCESS_USAGE_RATIO;
-
-    /// @inheritdoc IDefaultInterestRateStrategy
-    uint256 public override constant MAX_EXCESS_STABLE_TO_TOTAL_DEBT_RATIO = WadRayMath.RAY;
+    uint256 public override constant  MAX_EXCESS_STABLE_TO_TOTAL_DEBT_RATIO = WadRayMath.RAY;
 
     IPoolAddressesProvider public override immutable ADDRESSES_PROVIDER;
 
@@ -49,11 +43,11 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
 
     /**
      * @dev Constructor.
-     * @param provider The address of the PoolAddressesProvider contract
-     * @param optimalUsageRatio The optimal usage ratio
+     * @param provider               The address of the PoolAddressesProvider contract
+     * @param optimalUsageRatio      The optimal usage ratio
      * @param baseVariableBorrowRate The base variable borrow rate
-     * @param variableRateSlope1 The variable rate slope below optimal usage ratio
-     * @param variableRateSlope2 The variable rate slope above optimal usage ratio
+     * @param variableRateSlope1     The variable rate slope below optimal usage ratio
+     * @param variableRateSlope2     The variable rate slope above optimal usage ratio
      */
     constructor(
         IPoolAddressesProvider provider,
@@ -72,44 +66,51 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
         _variableRateSlope2     = variableRateSlope2;
     }
 
-    /// @inheritdoc IDefaultInterestRateStrategy
-    function getVariableRateSlope1() public override virtual view returns (uint256) {
+    // --- Override these to alter behaviour ---
+    function _getBaseVariableBorrowRate() internal virtual view returns (uint256) {
+        return _baseVariableBorrowRate;
+    }
+
+    function _getVariableRateSlope1() internal virtual view returns (uint256) {
         return _variableRateSlope1;
     }
 
-    /// @inheritdoc IDefaultInterestRateStrategy
-    function getVariableRateSlope2() public override virtual view returns (uint256) {
+    function _getVariableRateSlope2() internal virtual view returns (uint256) {
         return _variableRateSlope2;
     }
 
-    /// @inheritdoc IDefaultInterestRateStrategy
+    // --- Regular interface ---
+
+    function getVariableRateSlope1() external override view returns (uint256) {
+        return _getVariableRateSlope1();
+    }
+
+    function getVariableRateSlope2() external override view returns (uint256) {
+        return _getVariableRateSlope2();
+    }
+
     function getStableRateSlope1() external override pure returns (uint256) {
         return 0;
     }
 
-    /// @inheritdoc IDefaultInterestRateStrategy
     function getStableRateSlope2() external override pure returns (uint256) {
         return 0;
     }
 
-    /// @inheritdoc IDefaultInterestRateStrategy
     function getStableRateExcessOffset() external override pure returns (uint256) {
         return 0;
     }
 
-    /// @inheritdoc IDefaultInterestRateStrategy
-    function getBaseStableBorrowRate() public override view returns (uint256) {
-        return getVariableRateSlope1();
+    function getBaseStableBorrowRate() external override view returns (uint256) {
+        return _getVariableRateSlope1();
     }
 
-    /// @inheritdoc IDefaultInterestRateStrategy
-    function getBaseVariableBorrowRate() public override virtual view returns (uint256) {
-        return _baseVariableBorrowRate;
+    function getBaseVariableBorrowRate() external override view returns (uint256) {
+        return _getBaseVariableBorrowRate();
     }
 
-    /// @inheritdoc IDefaultInterestRateStrategy
     function getMaxVariableBorrowRate() external view override returns (uint256) {
-        return getBaseVariableBorrowRate() + getVariableRateSlope1() + getVariableRateSlope2();
+        return _getBaseVariableBorrowRate() + _getVariableRateSlope1() + _getVariableRateSlope2();
     }
 
     struct CalcInterestRatesLocalVars {
@@ -122,7 +123,6 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
         uint256 availableLiquidityPlusDebt;
     }
 
-    /// @inheritdoc IReserveInterestRateStrategy
     function calculateInterestRates(
         DataTypes.CalculateInterestRatesParams memory params
     ) external view override returns (uint256, uint256, uint256) {
@@ -131,7 +131,7 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
         vars.totalDebt = params.totalStableDebt + params.totalVariableDebt;
 
         vars.currentLiquidityRate      = 0;
-        vars.currentVariableBorrowRate = getBaseVariableBorrowRate();
+        vars.currentVariableBorrowRate = _getBaseVariableBorrowRate();
 
         if (vars.totalDebt != 0) {
             vars.availableLiquidity =
@@ -152,10 +152,10 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
             );
 
             vars.currentVariableBorrowRate +=
-                getVariableRateSlope1() +
-                getVariableRateSlope2().rayMul(excessBorrowUsageRatio);
+                _getVariableRateSlope1() +
+                _getVariableRateSlope2().rayMul(excessBorrowUsageRatio);
         } else {
-            vars.currentVariableBorrowRate += getVariableRateSlope1().rayMul(vars.borrowUsageRatio).rayDiv(
+            vars.currentVariableBorrowRate += _getVariableRateSlope1().rayMul(vars.borrowUsageRatio).rayDiv(
                 OPTIMAL_USAGE_RATIO
             );
         }
@@ -173,4 +173,5 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
             vars.currentVariableBorrowRate
         );
     }
+
 }
