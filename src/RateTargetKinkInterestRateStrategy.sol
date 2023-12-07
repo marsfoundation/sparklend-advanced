@@ -22,7 +22,6 @@ contract RateTargetKinkInterestRateStrategy is VariableBorrowInterestRateStrateg
     // Slope spread of the variable interest curve when usage ratio > 0 and <= OPTIMAL_USAGE_RATIO. Expressed in ray
     int256 internal immutable _variableRateSlope1Spread;
 
-
     /**
      * @dev Constructor.
      * @param provider                 The address of the PoolAddressesProvider contract
