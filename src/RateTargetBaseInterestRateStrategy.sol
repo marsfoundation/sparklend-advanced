@@ -10,9 +10,7 @@ import {IDefaultInterestRateStrategy} from 'aave-v3-core/contracts/interfaces/ID
 import {IReserveInterestRateStrategy} from 'aave-v3-core/contracts/interfaces/IReserveInterestRateStrategy.sol';
 import {IPoolAddressesProvider} from 'aave-v3-core/contracts/interfaces/IPoolAddressesProvider.sol';
 
-interface IRateSource {
-  function getAPR() external view returns (uint256);
-}
+import {IRateSource} from './interfaces/IRateSource.sol';
 
 /**
  * @title RateTargetBaseInterestRateStrategy contract
