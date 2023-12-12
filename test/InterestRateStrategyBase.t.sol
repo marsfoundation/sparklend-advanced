@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import { IDefaultInterestRateStrategy }       from 'aave-v3-core/contracts/interfaces/IDefaultInterestRateStrategy.sol';
-import { DataTypes }                          from 'aave-v3-core/contracts/protocol/libraries/types/DataTypes.sol';
-import { DefaultReserveInterestRateStrategy } from 'aave-v3-core/contracts/protocol/pool/DefaultReserveInterestRateStrategy.sol';
+import { IDefaultInterestRateStrategy }       from "aave-v3-core/contracts/interfaces/IDefaultInterestRateStrategy.sol";
+import { DataTypes }                          from "aave-v3-core/contracts/protocol/libraries/types/DataTypes.sol";
+import { DefaultReserveInterestRateStrategy } from "aave-v3-core/contracts/protocol/pool/DefaultReserveInterestRateStrategy.sol";
 
-import { MockERC20 } from 'erc20-helpers/MockERC20.sol';
+import { MockERC20 } from "erc20-helpers/MockERC20.sol";
 
 abstract contract InterestRateStrategyBaseTest is Test {
 

@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.0;
 
+import {IRateSource} from './interfaces/IRateSource.sol';
+
 import {
     VariableBorrowInterestRateStrategy,
     IPoolAddressesProvider
 } from './VariableBorrowInterestRateStrategy.sol';
-
-// TODO remove this when the other PR is merged
-interface IRateSource {
-    function getAPR() external view returns (uint256);
-}
 
 /**
  * @title  RateTargetKinkInterestRateStrategy
