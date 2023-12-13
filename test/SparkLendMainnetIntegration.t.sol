@@ -134,6 +134,9 @@ contract SparkLendMainnetIntegrationTest is Test {
         assertEq(_getBorrowRate(ETH), 0.025683196253563698736573012e27);
     }
 
+    // TODO add capped oracles for WBTC/USDC/USDT
+    // TODO add kink rate IRMs for USDC/USDT
+
     function _getBorrowRate(address asset) internal view returns (uint256) {
         return pool.getReserveData(asset).currentVariableBorrowRate;
     }
