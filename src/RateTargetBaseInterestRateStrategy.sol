@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.0;
 
-import {IRateSource} from './interfaces/IRateSource.sol';
+import { IRateSource } from './interfaces/IRateSource.sol';
 
 import {
     VariableBorrowInterestRateStrategy,
@@ -16,17 +16,17 @@ contract RateTargetBaseInterestRateStrategy is VariableBorrowInterestRateStrateg
 
     IRateSource public immutable RATE_SOURCE;
 
-    // Base variable borrow rate spread when usage rate = 0. Expressed in ray
+    // Base variable borrow rate spread when usage rate = 0. Expressed in ray.
     uint256 internal immutable _baseVariableBorrowRateSpread;
 
     /**
      * @dev Constructor.
-     * @param provider                     The address of the PoolAddressesProvider contract
-     * @param rateSource                   The address of the rate source contract
-     * @param optimalUsageRatio            The optimal usage ratio
-     * @param baseVariableBorrowRateSpread The base variable borrow rate spread
-     * @param variableRateSlope1           The variable rate slope below optimal usage ratio
-     * @param variableRateSlope2           The variable rate slope above optimal usage ratio
+     * @param provider                     The address of the PoolAddressesProvider contract.
+     * @param rateSource                   The address of the rate source contract.
+     * @param optimalUsageRatio            The optimal usage ratio.
+     * @param baseVariableBorrowRateSpread The base variable borrow rate spread.
+     * @param variableRateSlope1           The variable rate slope below optimal usage ratio.
+     * @param variableRateSlope2           The variable rate slope above optimal usage ratio.
      */
     constructor(
         IPoolAddressesProvider provider,
