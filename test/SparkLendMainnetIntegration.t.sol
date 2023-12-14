@@ -127,7 +127,7 @@ contract SparkLendMainnetIntegrationTest is Test {
                 rateSource:               address(new RateSourceMock(0.03823984723902383709e27)),  // 3.8% (approx APR as of Dec 14, 2023)
                 optimalUsageRatio:        0.9e27,
                 baseVariableBorrowRate:   0,
-                variableRateSlope1Spread: -0.008e27,  // 0.8% spread
+                variableRateSlope1Spread: -0.008e27,  // -0.8% spread
                 variableRateSlope2:       1.2e27
             });
         IDefaultInterestRateStrategy prevStrategy
@@ -192,7 +192,7 @@ contract SparkLendMainnetIntegrationTest is Test {
                 rateSource:               address(new PotRateSource(POT)),
                 optimalUsageRatio:        0.95e27,
                 baseVariableBorrowRate:   0,
-                variableRateSlope1Spread: -0.004e27,  // 0.4% spread
+                variableRateSlope1Spread: -0.004e27,  // -0.4% spread
                 variableRateSlope2:       0.2e27
             });
         IDefaultInterestRateStrategy prevStrategy
@@ -229,8 +229,36 @@ contract SparkLendMainnetIntegrationTest is Test {
         _triggerUpdate(USDT);
 
         // Should be no change
-        assertEq(_getBorrowRate(USDC), currentRateUSDC, "after: USDC mismatch");
-        assertEq(_getBorrowRate(USDT), currentRateUSDT, "after: USDT mismatch");
+        assertEq(_getBorrowRate(USDC), currentRateUSDC, "after1: USDC mismatch");
+        assertEq(_getBorrowRate(USDT), currentRateUSDT, "after1: USDT mismatch");
+
+        // Test with different parameters
+        strategy = new RateTargetKinkInterestRateStrategy({
+            provider:                 poolAddressesProvider,
+            rateSource:               address(new PotRateSource(POT)),
+            optimalUsageRatio:        0.95e27,
+            baseVariableBorrowRate:   0,
+            variableRateSlope1Spread: -0.002e27,  // -0.2% spread
+            variableRateSlope2:       0.2e27
+        });
+
+        vm.startPrank(ADMIN);
+        configurator.setReserveInterestRateStrategyAddress(
+            USDC,
+            address(strategy)
+        );
+        configurator.setReserveInterestRateStrategyAddress(
+            USDT,
+            address(strategy)
+        );
+        vm.stopPrank();
+
+        _triggerUpdate(USDC);
+        _triggerUpdate(USDT);
+
+        // Almost +0.2%, but utilization is slightly below the kink point
+        assertEq(_getBorrowRate(USDC), currentRateUSDC + 0.001891955013226013824859422e27, "after2: USDC mismatch");
+        assertEq(_getBorrowRate(USDT), currentRateUSDT + 0.001899234005225860815063204e27, "after2: USDT mismatch");
     }
 
     // TODO add capped oracles for WBTC (need to import the combining contract first)
