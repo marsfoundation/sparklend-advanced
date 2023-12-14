@@ -70,7 +70,7 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_dai_market_irm() public {
-        RateTargetBaseInterestRateStrategy interestRateStrategy
+        RateTargetBaseInterestRateStrategy strategy
             = new RateTargetBaseInterestRateStrategy({
                 provider:                      poolAddressesProvider,
                 rateSource:                    address(new PotRateSource(POT)),
@@ -88,7 +88,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         vm.prank(ADMIN);
         configurator.setReserveInterestRateStrategyAddress(
             DAI,
-            address(interestRateStrategy)
+            address(strategy)
         );
 
         // Trigger an update from the new IRM
@@ -98,7 +98,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         assertEq(_getBorrowRate(DAI), currentBorrowRate);
 
         // Change the borrow spread to 1%
-        interestRateStrategy = new RateTargetBaseInterestRateStrategy({
+        strategy = new RateTargetBaseInterestRateStrategy({
             provider:                     poolAddressesProvider,
             rateSource:                   address(new PotRateSource(POT)),
             optimalUsageRatio:            1e27,
@@ -109,7 +109,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         vm.prank(ADMIN);
         configurator.setReserveInterestRateStrategyAddress(
             DAI,
-            address(interestRateStrategy)
+            address(strategy)
         );
 
         // Trigger an update from the new IRM
@@ -121,7 +121,7 @@ contract SparkLendMainnetIntegrationTest is Test {
 
     function test_eth_market_irm() public {
         // TODO replace with actual ETH yield oracle when ready
-        RateTargetKinkInterestRateStrategy interestRateStrategy
+        RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
                 provider:                 poolAddressesProvider,
                 rateSource:               address(new RateSourceMock(0.03823984723902383709e27)),  // 3.8% (approx APR as of Dec 14, 2023)
@@ -130,19 +130,17 @@ contract SparkLendMainnetIntegrationTest is Test {
                 variableRateSlope1Spread: -0.008e27,  // 0.8% spread
                 variableRateSlope2:       1.2e27
             });
-        IDefaultInterestRateStrategy previousInterestRateStrategy
+        IDefaultInterestRateStrategy prevStrategy
             = IDefaultInterestRateStrategy(ETH_IRM);
 
         _triggerUpdate(ETH);
 
-        uint256 deltaSlope1 = 0.032e27 - 0.03023984723902383709e27;
-
-        assertEq(interestRateStrategy.getBaseVariableBorrowRate(),        previousInterestRateStrategy.getBaseVariableBorrowRate());
-        assertEq(previousInterestRateStrategy.getVariableRateSlope1(),    0.032e27);
-        assertEq(interestRateStrategy.getVariableRateSlope1(),            0.03023984723902383709e27);
-        assertEq(interestRateStrategy.getVariableRateSlope2(),            previousInterestRateStrategy.getVariableRateSlope2());
-        assertEq(previousInterestRateStrategy.getMaxVariableBorrowRate(), 1.232e27);
-        assertEq(interestRateStrategy.getMaxVariableBorrowRate(),         1.23023984723902383709e27);
+        assertEq(strategy.getBaseVariableBorrowRate(),    prevStrategy.getBaseVariableBorrowRate());
+        assertEq(prevStrategy.getVariableRateSlope1(),    0.032e27);
+        assertEq(strategy.getVariableRateSlope1(),        0.03023984723902383709e27);
+        assertEq(strategy.getVariableRateSlope2(),        prevStrategy.getVariableRateSlope2());
+        assertEq(prevStrategy.getMaxVariableBorrowRate(), 1.232e27);
+        assertEq(strategy.getMaxVariableBorrowRate(),     1.23023984723902383709e27);
 
         _triggerUpdate(ETH);
 
@@ -151,13 +149,13 @@ contract SparkLendMainnetIntegrationTest is Test {
         vm.prank(ADMIN);
         configurator.setReserveInterestRateStrategyAddress(
             ETH,
-            address(interestRateStrategy)
+            address(strategy)
         );
 
         _triggerUpdate(ETH);
 
-        assertEq(_getBorrowRate(ETH),          0.027800738894650680218981526e27);
-        assertApproxEqAbs(_getBorrowRate(ETH), 0.029418919930282671146708166e27 - deltaSlope1, 0.0052e27);
+        // slope1 has adjusted down a bit so the borrow rate is slightly lower at same utilization
+        assertEq(_getBorrowRate(ETH), 0.027800738894650680218981526e27);
     }
 
     function test_usdc_usdt_market_oracles() public {
@@ -188,45 +186,51 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_usdc_usdt_market_irms() public {
-        RateTargetKinkInterestRateStrategy interestRateStrategy
+        RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
                 provider:                 poolAddressesProvider,
                 rateSource:               address(new PotRateSource(POT)),
-                optimalUsageRatio:        0.9e27,
+                optimalUsageRatio:        0.95e27,
                 baseVariableBorrowRate:   0,
                 variableRateSlope1Spread: -0.004e27,  // 0.4% spread
                 variableRateSlope2:       0.2e27
             });
-        IDefaultInterestRateStrategy previousInterestRateStrategy
+        IDefaultInterestRateStrategy prevStrategy
             = IDefaultInterestRateStrategy(USDC_USDT_IRM);
 
-        assertEq(interestRateStrategy.getBaseVariableBorrowRate(), previousInterestRateStrategy.getBaseVariableBorrowRate());
-        assertEq(interestRateStrategy.getVariableRateSlope1(),     previousInterestRateStrategy.getVariableRateSlope1());
-        assertEq(interestRateStrategy.getVariableRateSlope2(),     previousInterestRateStrategy.getVariableRateSlope2());
-        assertEq(interestRateStrategy.getMaxVariableBorrowRate(),  previousInterestRateStrategy.getMaxVariableBorrowRate());
+        assertEq(strategy.OPTIMAL_USAGE_RATIO(),       prevStrategy.OPTIMAL_USAGE_RATIO());
+        assertEq(strategy.MAX_EXCESS_USAGE_RATIO(),    prevStrategy.MAX_EXCESS_USAGE_RATIO());
+        assertEq(strategy.getBaseVariableBorrowRate(), prevStrategy.getBaseVariableBorrowRate());
+        assertEq(strategy.getVariableRateSlope1(),     prevStrategy.getVariableRateSlope1());
+        assertEq(strategy.getVariableRateSlope2(),     prevStrategy.getVariableRateSlope2());
+        assertEq(strategy.getMaxVariableBorrowRate(),  prevStrategy.getMaxVariableBorrowRate());
 
         _triggerUpdate(USDC);
         _triggerUpdate(USDT);
 
-        assertEq(_getBorrowRate(USDC), 0.042370487857489861390961744e27);
-        assertEq(_getBorrowRate(USDT), 0.042533501480957788642828711e27);
+        uint256 currentRateUSDC = 0.042370487857489861390961744e27;
+        uint256 currentRateUSDT = 0.042533501480957788642828711e27;
+
+        assertEq(_getBorrowRate(USDC), currentRateUSDC, "before: USDC mismatch");
+        assertEq(_getBorrowRate(USDT), currentRateUSDT, "before: USDT mismatch");
 
         vm.startPrank(ADMIN);
         configurator.setReserveInterestRateStrategyAddress(
             USDC,
-            address(interestRateStrategy)
+            address(strategy)
         );
         configurator.setReserveInterestRateStrategyAddress(
             USDT,
-            address(interestRateStrategy)
+            address(strategy)
         );
         vm.stopPrank();
 
         _triggerUpdate(USDC);
         _triggerUpdate(USDT);
 
-        assertEq(_getBorrowRate(USDC), 0.044724403849572631468237397e27);
-        assertEq(_getBorrowRate(USDT), 0.049062469171742042070172088e27);
+        // Should be no change
+        assertEq(_getBorrowRate(USDC), currentRateUSDC, "after: USDC mismatch");
+        assertEq(_getBorrowRate(USDT), currentRateUSDT, "after: USDT mismatch");
     }
 
     // TODO add capped oracles for WBTC (need to import the combining contract first)
