@@ -35,12 +35,7 @@ contract SparkDaiMarketInterestRateStrategyIntegrationTest is Test {
             optimalUsageRatio:             1e27,
             baseVariableBorrowRateSpread:  0.005e27,
             variableRateSlope1:            0,
-            variableRateSlope2:            0,
-            stableRateSlope1:              0,
-            stableRateSlope2:              0,
-            baseStableRateOffset:          0,
-            stableRateExcessOffset:        0,
-            optimalStableToTotalDebtRatio: 0
+            variableRateSlope2:            0
         });
     }
 
@@ -69,12 +64,7 @@ contract SparkDaiMarketInterestRateStrategyIntegrationTest is Test {
             optimalUsageRatio:             1e27,
             baseVariableBorrowRateSpread:  0.01e27,
             variableRateSlope1:            0,
-            variableRateSlope2:            0,
-            stableRateSlope1:              0,
-            stableRateSlope2:              0,
-            baseStableRateOffset:          0,
-            stableRateExcessOffset:        0,
-            optimalStableToTotalDebtRatio: 0
+            variableRateSlope2:            0
         });
         vm.prank(admin);
         configurator.setReserveInterestRateStrategyAddress(

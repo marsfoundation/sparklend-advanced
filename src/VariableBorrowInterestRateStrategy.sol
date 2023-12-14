@@ -21,22 +21,16 @@ import { IPoolAddressesProvider }       from 'aave-v3-core/contracts/interfaces/
  * - Note: This is a modified version of DefaultReserveInterestRateStrategy with the stable borrow feature disabled.
  */
 contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
-    using WadRayMath for uint256;
+
+    using WadRayMath     for uint256;
     using PercentageMath for uint256;
 
-    /// @inheritdoc IDefaultInterestRateStrategy
-    uint256 public immutable OPTIMAL_USAGE_RATIO;
+    uint256 public override immutable OPTIMAL_USAGE_RATIO;
+    uint256 public override constant  OPTIMAL_STABLE_TO_TOTAL_DEBT_RATIO = 0;
+    uint256 public override immutable MAX_EXCESS_USAGE_RATIO;
+    uint256 public override constant  MAX_EXCESS_STABLE_TO_TOTAL_DEBT_RATIO = WadRayMath.RAY;
 
-    /// @inheritdoc IDefaultInterestRateStrategy
-    uint256 public constant OPTIMAL_STABLE_TO_TOTAL_DEBT_RATIO = 0;
-
-    /// @inheritdoc IDefaultInterestRateStrategy
-    uint256 public immutable MAX_EXCESS_USAGE_RATIO;
-
-    /// @inheritdoc IDefaultInterestRateStrategy
-    uint256 public constant MAX_EXCESS_STABLE_TO_TOTAL_DEBT_RATIO = WadRayMath.RAY;
-
-    IPoolAddressesProvider public immutable ADDRESSES_PROVIDER;
+    IPoolAddressesProvider public override immutable ADDRESSES_PROVIDER;
 
     // Base variable borrow rate when usage rate = 0. Expressed in ray
     uint256 internal immutable _baseVariableBorrowRate;
@@ -47,25 +41,13 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
     // Slope of the variable interest curve when usage ratio > OPTIMAL_USAGE_RATIO. Expressed in ray
     uint256 internal immutable _variableRateSlope2;
 
-    // Slope of the stable interest curve when usage ratio > 0 and <= OPTIMAL_USAGE_RATIO. Expressed in ray
-    uint256 internal constant _stableRateSlope1 = 0;
-
-    // Slope of the stable interest curve when usage ratio > OPTIMAL_USAGE_RATIO. Expressed in ray
-    uint256 internal constant _stableRateSlope2 = 0;
-
-    // Premium on top of `_variableRateSlope1` for base stable borrowing rate
-    uint256 internal constant _baseStableRateOffset = 0;
-
-    // Additional premium applied to stable rate when stable debt surpass `OPTIMAL_STABLE_TO_TOTAL_DEBT_RATIO`
-    uint256 internal constant _stableRateExcessOffset = 0;
-
     /**
      * @dev Constructor.
-     * @param provider The address of the PoolAddressesProvider contract
-     * @param optimalUsageRatio The optimal usage ratio
+     * @param provider               The address of the PoolAddressesProvider contract
+     * @param optimalUsageRatio      The optimal usage ratio
      * @param baseVariableBorrowRate The base variable borrow rate
-     * @param variableRateSlope1 The variable rate slope below optimal usage ratio
-     * @param variableRateSlope2 The variable rate slope above optimal usage ratio
+     * @param variableRateSlope1     The variable rate slope below optimal usage ratio
+     * @param variableRateSlope2     The variable rate slope above optimal usage ratio
      */
     constructor(
         IPoolAddressesProvider provider,
@@ -84,44 +66,51 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
         _variableRateSlope2     = variableRateSlope2;
     }
 
-    /// @inheritdoc IDefaultInterestRateStrategy
-    function getVariableRateSlope1() external view returns (uint256) {
-        return _variableRateSlope1;
-    }
-
-    /// @inheritdoc IDefaultInterestRateStrategy
-    function getVariableRateSlope2() external view returns (uint256) {
-        return _variableRateSlope2;
-    }
-
-    /// @inheritdoc IDefaultInterestRateStrategy
-    function getStableRateSlope1() external pure returns (uint256) {
-        return _stableRateSlope1;
-    }
-
-    /// @inheritdoc IDefaultInterestRateStrategy
-    function getStableRateSlope2() external pure returns (uint256) {
-        return _stableRateSlope2;
-    }
-
-    /// @inheritdoc IDefaultInterestRateStrategy
-    function getStableRateExcessOffset() external pure returns (uint256) {
-        return _stableRateExcessOffset;
-    }
-
-    /// @inheritdoc IDefaultInterestRateStrategy
-    function getBaseStableBorrowRate() public view returns (uint256) {
-        return _variableRateSlope1 + _baseStableRateOffset;
-    }
-
-    /// @inheritdoc IDefaultInterestRateStrategy
-    function getBaseVariableBorrowRate() external view override returns (uint256) {
+    // --- Override these to alter behaviour ---
+    function _getBaseVariableBorrowRate() internal virtual view returns (uint256) {
         return _baseVariableBorrowRate;
     }
 
-    /// @inheritdoc IDefaultInterestRateStrategy
+    function _getVariableRateSlope1() internal virtual view returns (uint256) {
+        return _variableRateSlope1;
+    }
+
+    function _getVariableRateSlope2() internal virtual view returns (uint256) {
+        return _variableRateSlope2;
+    }
+
+    // --- Regular interface ---
+
+    function getVariableRateSlope1() external override view returns (uint256) {
+        return _getVariableRateSlope1();
+    }
+
+    function getVariableRateSlope2() external override view returns (uint256) {
+        return _getVariableRateSlope2();
+    }
+
+    function getStableRateSlope1() external override pure returns (uint256) {
+        return 0;
+    }
+
+    function getStableRateSlope2() external override pure returns (uint256) {
+        return 0;
+    }
+
+    function getStableRateExcessOffset() external override pure returns (uint256) {
+        return 0;
+    }
+
+    function getBaseStableBorrowRate() external override view returns (uint256) {
+        return _getVariableRateSlope1();
+    }
+
+    function getBaseVariableBorrowRate() external override view returns (uint256) {
+        return _getBaseVariableBorrowRate();
+    }
+
     function getMaxVariableBorrowRate() external view override returns (uint256) {
-        return _baseVariableBorrowRate + _variableRateSlope1 + _variableRateSlope2;
+        return _getBaseVariableBorrowRate() + _getVariableRateSlope1() + _getVariableRateSlope2();
     }
 
     struct CalcInterestRatesLocalVars {
@@ -134,16 +123,15 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
         uint256 availableLiquidityPlusDebt;
     }
 
-    /// @inheritdoc IReserveInterestRateStrategy
     function calculateInterestRates(
         DataTypes.CalculateInterestRatesParams memory params
-    ) public view override returns (uint256, uint256, uint256) {
+    ) external view override returns (uint256, uint256, uint256) {
         CalcInterestRatesLocalVars memory vars;
 
         vars.totalDebt = params.totalStableDebt + params.totalVariableDebt;
 
         vars.currentLiquidityRate      = 0;
-        vars.currentVariableBorrowRate = _baseVariableBorrowRate;
+        vars.currentVariableBorrowRate = _getBaseVariableBorrowRate();
 
         if (vars.totalDebt != 0) {
             vars.availableLiquidity =
@@ -164,10 +152,10 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
             );
 
             vars.currentVariableBorrowRate +=
-                _variableRateSlope1 +
-                _variableRateSlope2.rayMul(excessBorrowUsageRatio);
+                _getVariableRateSlope1() +
+                _getVariableRateSlope2().rayMul(excessBorrowUsageRatio);
         } else {
-            vars.currentVariableBorrowRate += _variableRateSlope1.rayMul(vars.borrowUsageRatio).rayDiv(
+            vars.currentVariableBorrowRate += _getVariableRateSlope1().rayMul(vars.borrowUsageRatio).rayDiv(
                 OPTIMAL_USAGE_RATIO
             );
         }
@@ -185,4 +173,5 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
             vars.currentVariableBorrowRate
         );
     }
+
 }

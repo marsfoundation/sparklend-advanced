@@ -26,12 +26,7 @@ contract RateTargetKinkInterestRateStrategyTest is InterestRateStrategyBaseTest 
             optimalUsageRatio: 0.8e27,
             baseVariableBorrowRate: 0.01e27,
             variableRateSlope1Spread: -0.005e27,
-            variableRateSlope2: 0.55e27,
-            stableRateSlope1: 0,
-            stableRateSlope2: 0,
-            baseStableRateOffset: 0,
-            stableRateExcessOffset: 0,
-            optimalStableToTotalDebtRatio: 0
+            variableRateSlope2: 0.55e27
         });
 
         interestStrategyPositiveSpread = new RateTargetKinkInterestRateStrategy({
@@ -40,12 +35,7 @@ contract RateTargetKinkInterestRateStrategyTest is InterestRateStrategyBaseTest 
             optimalUsageRatio: 0,
             baseVariableBorrowRate: 0.01e27,
             variableRateSlope1Spread: 0.005e27,
-            variableRateSlope2: 0.55e27,
-            stableRateSlope1: 0,
-            stableRateSlope2: 0,
-            baseStableRateOffset: 0,
-            stableRateExcessOffset: 0,
-            optimalStableToTotalDebtRatio: 0
+            variableRateSlope2: 0.55e27
         });
 
         initBase(interestStrategy);

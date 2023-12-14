@@ -25,12 +25,7 @@ contract RateTargetBaseInterestRateStrategyTest is InterestRateStrategyBaseTest 
             optimalUsageRatio: 0.8e27,
             baseVariableBorrowRateSpread: 0.005e27,
             variableRateSlope1: 0.01e27,
-            variableRateSlope2: 0.45e27,
-            stableRateSlope1: 0,
-            stableRateSlope2: 0,
-            baseStableRateOffset: 0,
-            stableRateExcessOffset: 0,
-            optimalStableToTotalDebtRatio: 0
+            variableRateSlope2: 0.45e27
         });
 
         initBase(interestStrategy);
