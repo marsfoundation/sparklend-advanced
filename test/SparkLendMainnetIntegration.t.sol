@@ -35,6 +35,7 @@ contract SparkLendMainnetIntegrationTest is Test {
     address USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
 
+    address ETH_IRM       = 0xeCe550fB709C85CE9FC999A033447Ee2DF3ce55c;
     address USDC_ORACLE   = 0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6;
     address USDT_ORACLE   = 0x3E7d1eAB13ad0104d2750B8863b489D65364e32D;
     address USDC_USDT_IRM = 0xbc8A68B0ab0617D7c90d15bb1601B25d795Dc4c8;  // Note: This is the same for both because the parameters are the same
@@ -45,14 +46,14 @@ contract SparkLendMainnetIntegrationTest is Test {
     IPoolConfigurator      configurator          = IPoolConfigurator(POOL_CONFIGURATOR);
 
     function setUp() public {
-        vm.createSelectFork(getChain("mainnet").rpcUrl, 18_627_155);
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 18784436);  // Dec 14, 2023
     }
 
     function test_dai_market_oracle() public {
         FixedPriceOracle oracle = new FixedPriceOracle(1e8);
         
         // Nothing is special about this number, it just happens to be the price at this block
-        assertEq(aaveOracle.getAssetPrice(DAI), 0.99959638e8);
+        assertEq(aaveOracle.getAssetPrice(DAI), 0.99982058e8);
 
         address[] memory assets = new address[](1);
         assets[0] = DAI;
@@ -123,14 +124,29 @@ contract SparkLendMainnetIntegrationTest is Test {
         RateTargetKinkInterestRateStrategy interestRateStrategy
             = new RateTargetKinkInterestRateStrategy({
                 provider:                 poolAddressesProvider,
-                rateSource:               address(new RateSourceMock(0.038e27)),  // 3.8% (approx APR as of Dec 13, 2023)
+                rateSource:               address(new RateSourceMock(0.03823984723902383709e27)),  // 3.8% (approx APR as of Dec 14, 2023)
                 optimalUsageRatio:        0.9e27,
                 baseVariableBorrowRate:   0,
                 variableRateSlope1Spread: -0.008e27,  // 0.8% spread
                 variableRateSlope2:       1.2e27
             });
+        IDefaultInterestRateStrategy previousInterestRateStrategy
+            = IDefaultInterestRateStrategy(ETH_IRM);
 
-        assertEq(_getBorrowRate(ETH), 0.027395409271592459668138011e27);
+        _triggerUpdate(ETH);
+
+        uint256 deltaSlope1 = 0.032e27 - 0.03023984723902383709e27;
+
+        assertEq(interestRateStrategy.getBaseVariableBorrowRate(),        previousInterestRateStrategy.getBaseVariableBorrowRate());
+        assertEq(previousInterestRateStrategy.getVariableRateSlope1(),    0.032e27);
+        assertEq(interestRateStrategy.getVariableRateSlope1(),            0.03023984723902383709e27);
+        assertEq(interestRateStrategy.getVariableRateSlope2(),            previousInterestRateStrategy.getVariableRateSlope2());
+        assertEq(previousInterestRateStrategy.getMaxVariableBorrowRate(), 1.232e27);
+        assertEq(interestRateStrategy.getMaxVariableBorrowRate(),         1.23023984723902383709e27);
+
+        _triggerUpdate(ETH);
+
+        assertEq(_getBorrowRate(ETH), 0.029418919930282671146708166e27);
 
         vm.prank(ADMIN);
         configurator.setReserveInterestRateStrategyAddress(
@@ -140,7 +156,8 @@ contract SparkLendMainnetIntegrationTest is Test {
 
         _triggerUpdate(ETH);
 
-        assertEq(_getBorrowRate(ETH), 0.025683196253563698736573012e27);
+        assertEq(_getBorrowRate(ETH),        0.027800738894650680218981526e27);
+        assertApproxEqAbs(_getBorrowRate(ETH), 0.029418919930282671146708166e27 - deltaSlope1, 0.0052e27);
     }
 
     function test_usdc_usdt_market_oracles() public {
@@ -148,8 +165,8 @@ contract SparkLendMainnetIntegrationTest is Test {
         CappedOracle usdtOracle = new CappedOracle(USDT_ORACLE, 1e8);
         
         // Nothing is special about these numbers, they just happens to be the price at this block
-        assertEq(aaveOracle.getAssetPrice(USDC), 1.00001291e8);
-        assertEq(aaveOracle.getAssetPrice(USDT), 1.00047200e8);
+        assertEq(aaveOracle.getAssetPrice(USDC), 1.00005299e8);
+        assertEq(aaveOracle.getAssetPrice(USDT), 0.99961441e8);
 
         address[] memory assets = new address[](2);
         assets[0] = USDC;
@@ -165,7 +182,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         );
 
         assertEq(aaveOracle.getAssetPrice(USDC), 1e8);
-        assertEq(aaveOracle.getAssetPrice(USDT), 1e8);
+        assertEq(aaveOracle.getAssetPrice(USDT), 0.99961441e8);
 
         // TODO test if price of oracle drops below $1
     }
@@ -188,8 +205,11 @@ contract SparkLendMainnetIntegrationTest is Test {
         assertEq(interestRateStrategy.getVariableRateSlope2(),     previousInterestRateStrategy.getVariableRateSlope2());
         assertEq(interestRateStrategy.getMaxVariableBorrowRate(),  previousInterestRateStrategy.getMaxVariableBorrowRate());
 
-        assertEq(_getBorrowRate(USDC), 0.032465964040419624628115797e27);
-        assertEq(_getBorrowRate(USDT), 0.043549288556262928206251427e27);
+        _triggerUpdate(USDC);
+        _triggerUpdate(USDT);
+
+        assertEq(_getBorrowRate(USDC), 0.042370487857489861390961744e27);
+        assertEq(_getBorrowRate(USDT), 0.042533501480957788642828711e27);
 
         vm.startPrank(ADMIN);
         configurator.setReserveInterestRateStrategyAddress(
@@ -205,8 +225,8 @@ contract SparkLendMainnetIntegrationTest is Test {
         _triggerUpdate(USDC);
         _triggerUpdate(USDT);
 
-        assertEq(_getBorrowRate(USDC), 0.032465964040419624628115797e27);
-        assertEq(_getBorrowRate(USDT), 0.043549288556262928206251427e27);
+        assertEq(_getBorrowRate(USDC), 0.044724403849572631468237397e27);
+        assertEq(_getBorrowRate(USDT), 0.049062469171742042070172088e27);
     }
 
     // TODO add capped oracles for WBTC (need to import the combining contract first)
