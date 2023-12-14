@@ -156,7 +156,7 @@ contract SparkLendMainnetIntegrationTest is Test {
 
         _triggerUpdate(ETH);
 
-        assertEq(_getBorrowRate(ETH),        0.027800738894650680218981526e27);
+        assertEq(_getBorrowRate(ETH),          0.027800738894650680218981526e27);
         assertApproxEqAbs(_getBorrowRate(ETH), 0.029418919930282671146708166e27 - deltaSlope1, 0.0052e27);
     }
 
