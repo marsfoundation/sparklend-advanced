@@ -143,7 +143,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         assertEq(strategy.getVariableRateSlope1(),        mockETHYield - 0.008e27);
         assertEq(strategy.getVariableRateSlope2(),        prevStrategy.getVariableRateSlope2());
         assertEq(prevStrategy.getMaxVariableBorrowRate(), 1.232e27);
-        assertEq(strategy.getMaxVariableBorrowRate(),     1.23023984723902383709e27);
+        assertEq(strategy.getMaxVariableBorrowRate(),     1.2e27 + mockETHYield - 0.008e27);
 
         _triggerUpdate(ETH);
 
