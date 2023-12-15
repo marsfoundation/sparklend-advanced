@@ -6,17 +6,17 @@ This repository contains advanced features to improve SparkLend beyond the core 
 
 ### Oracles
 
-[FixedPriceOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/FixedPriceOracle.sol): A hardcoded oracle price that never changes. Uses: DAI market
+[FixedPriceOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/FixedPriceOracle.sol): A hardcoded oracle price that never changes. Used for: DAI market
 
-[CappedOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/CappedOracle.sol): Returns `min(market price, hardcoded max price)`. Uses: USDC/USDT markets
+[CappedOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/CappedOracle.sol): Returns `min(market price, hardcoded max price)`. Used for: USDC/USDT markets
 
 ### Custom Interest Rate Strategies
 
 [VariableBorrowInterestRateStrategy](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/VariableBorrowInterestRateStrategy.sol): Modified version of `DefaultReserveInterestRateStrategy` that removes the stable borrow logic.
 
-[RateTargetBaseInterestRateStrategy](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/RateTargetBaseInterestRateStrategy.sol): Overriden version of `VariableBorrowInterestRateStrategy` that sets the base variable borrow rate to match an external rate source with a fixed spread. Uses: DAI market
+[RateTargetBaseInterestRateStrategy](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/RateTargetBaseInterestRateStrategy.sol): Overridden version of `VariableBorrowInterestRateStrategy` that sets the base variable borrow rate to match an external rate source with a fixed spread. Used for: DAI market
 
-[RateTargetKinkInterestRateStrategy](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/RateTargetKinkInterestRateStrategy.sol): Overriden version of `VariableBorrowInterestRateStrategy` that sets the variable slope 1 rate to match an external rate source with a fixed spread. Uses: ETH/USDC/USDT markets
+[RateTargetKinkInterestRateStrategy](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/RateTargetKinkInterestRateStrategy.sol): Overridden version of `VariableBorrowInterestRateStrategy` that sets the variable slope 1 rate to match an external rate source with a fixed spread. Used for: ETH/USDC/USDT markets
 
 ### Rate Sources
 

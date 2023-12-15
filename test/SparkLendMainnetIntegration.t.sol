@@ -10,15 +10,17 @@ import { IPoolAddressesProvider }       from "aave-v3-core/contracts/interfaces/
 import { IPool }                        from "aave-v3-core/contracts/interfaces/IPool.sol";
 import { IPoolConfigurator }            from "aave-v3-core/contracts/interfaces/IPoolConfigurator.sol";
 import { IDefaultInterestRateStrategy } from "aave-v3-core/contracts/interfaces/IDefaultInterestRateStrategy.sol";
-import { IERC20 }                       from "erc20-helpers/interfaces/IERC20.sol";
-import { SafeERC20 }                    from "erc20-helpers/SafeERC20.sol";
 
-import { FixedPriceOracle }                   from "../src/FixedPriceOracle.sol";
-import { CappedOracle }                       from "../src/CappedOracle.sol";
-import { PotRateSource }                      from "../src/PotRateSource.sol";
-import { RateTargetBaseInterestRateStrategy } from "../src/RateTargetBaseInterestRateStrategy.sol";
-import { RateTargetKinkInterestRateStrategy } from "../src/RateTargetKinkInterestRateStrategy.sol";
+import { IERC20 }    from "erc20-helpers/interfaces/IERC20.sol";
+import { SafeERC20 } from "erc20-helpers/SafeERC20.sol";
 
+import { FixedPriceOracle }                   from "src/FixedPriceOracle.sol";
+import { CappedOracle }                       from "src/CappedOracle.sol";
+import { PotRateSource }                      from "src/PotRateSource.sol";
+import { RateTargetBaseInterestRateStrategy } from "src/RateTargetBaseInterestRateStrategy.sol";
+import { RateTargetKinkInterestRateStrategy } from "src/RateTargetKinkInterestRateStrategy.sol";
+
+// TODO Add capped oracles for WBTC (need to import the combining contract first)
 contract SparkLendMainnetIntegrationTest is Test {
 
     using SafeERC20 for IERC20;
@@ -120,7 +122,7 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_eth_market_irm() public {
-        // TODO replace with actual ETH yield oracle when ready
+        // TODO Replace with actual ETH yield oracle when ready
         RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
                 provider:                 poolAddressesProvider,
@@ -162,7 +164,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         CappedOracle usdcOracle = new CappedOracle(USDC_ORACLE, 1e8);
         CappedOracle usdtOracle = new CappedOracle(USDT_ORACLE, 1e8);
         
-        // Nothing is special about these numbers, they just happens to be the price at this block
+        // Nothing is special about these numbers, they just happen to be the price at this block
         assertEq(aaveOracle.getAssetPrice(USDC), 1.00005299e8);
         assertEq(aaveOracle.getAssetPrice(USDT), 0.99961441e8);
 
@@ -181,8 +183,6 @@ contract SparkLendMainnetIntegrationTest is Test {
 
         assertEq(aaveOracle.getAssetPrice(USDC), 1e8);
         assertEq(aaveOracle.getAssetPrice(USDT), 0.99961441e8);
-
-        // TODO test if price of oracle drops below $1
     }
 
     function test_usdc_usdt_market_irms() public {
@@ -261,14 +261,12 @@ contract SparkLendMainnetIntegrationTest is Test {
         assertEq(_getBorrowRate(USDT), currentRateUSDT + 0.001899234005225860815063204e27, "after2: USDT mismatch");
     }
 
-    // TODO add capped oracles for WBTC (need to import the combining contract first)
-
     function _getBorrowRate(address asset) internal view returns (uint256) {
         return pool.getReserveData(asset).currentVariableBorrowRate;
     }
 
     function _triggerUpdate(address asset) internal {
-        // Flashloan small amount to force indicies update
+        // Flashloan small amount to force indices update
         pool.flashLoanSimple(address(this), asset, 1, "", 0);
     }
 
