@@ -123,10 +123,11 @@ contract SparkLendMainnetIntegrationTest is Test {
 
     function test_eth_market_irm() public {
         // TODO Replace with actual ETH yield oracle when ready
+        uint256 mockETHYield = 0.03823984723902383709e27;  // 3.8% (approx APR as of Dec 14, 2023)
         RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
                 provider:                 poolAddressesProvider,
-                rateSource:               address(new RateSourceMock(0.03823984723902383709e27)),  // 3.8% (approx APR as of Dec 14, 2023)
+                rateSource:               address(new RateSourceMock(mockETHYield)),
                 optimalUsageRatio:        0.9e27,
                 baseVariableBorrowRate:   0,
                 variableRateSlope1Spread: -0.008e27,  // -0.8% spread
@@ -139,7 +140,7 @@ contract SparkLendMainnetIntegrationTest is Test {
 
         assertEq(strategy.getBaseVariableBorrowRate(),    prevStrategy.getBaseVariableBorrowRate());
         assertEq(prevStrategy.getVariableRateSlope1(),    0.032e27);
-        assertEq(strategy.getVariableRateSlope1(),        0.03023984723902383709e27);
+        assertEq(strategy.getVariableRateSlope1(),        mockETHYield - 0.008e27);
         assertEq(strategy.getVariableRateSlope2(),        prevStrategy.getVariableRateSlope2());
         assertEq(prevStrategy.getMaxVariableBorrowRate(), 1.232e27);
         assertEq(strategy.getMaxVariableBorrowRate(),     1.23023984723902383709e27);
