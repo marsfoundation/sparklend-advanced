@@ -20,7 +20,7 @@ This repository contains advanced features to improve SparkLend beyond the core 
 
 ### Rate Sources
 
-[PotRateSource](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/PotRateSource.sol): Adapter to convert DSR into APR which can be consumed by one of the rate target interest rate strategies. Uses: DAI/USDC/USDT markets
+[PotRateSource](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/PotRateSource.sol): Adapter to convert DSR into APR which can be consumed by one of the rate target interest rate strategies. Used for: DAI/USDC/USDT markets
 
 ## Usage
 

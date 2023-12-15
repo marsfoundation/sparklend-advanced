@@ -20,7 +20,7 @@ import { PotRateSource }                      from "src/PotRateSource.sol";
 import { RateTargetBaseInterestRateStrategy } from "src/RateTargetBaseInterestRateStrategy.sol";
 import { RateTargetKinkInterestRateStrategy } from "src/RateTargetKinkInterestRateStrategy.sol";
 
-// TODO Add capped oracles for WBTC (need to import the combining contract first)
+// TODO: Add capped oracles for WBTC (need to import the combining contract first)
 contract SparkLendMainnetIntegrationTest is Test {
 
     using SafeERC20 for IERC20;
@@ -53,7 +53,7 @@ contract SparkLendMainnetIntegrationTest is Test {
 
     function test_dai_market_oracle() public {
         FixedPriceOracle oracle = new FixedPriceOracle(1e8);
-        
+
         // Nothing is special about this number, it just happens to be the price at this block
         assertEq(aaveOracle.getAssetPrice(DAI), 0.99982058e8);
 
@@ -122,7 +122,7 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_eth_market_irm() public {
-        // TODO Replace with actual ETH yield oracle when ready
+        // TODO: Replace with actual ETH yield oracle when ready
         uint256 mockETHYield = 0.03823984723902383709e27;  // 3.8% (approx APR as of Dec 14, 2023)
         RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
@@ -143,7 +143,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         assertEq(strategy.getVariableRateSlope1(),        mockETHYield - 0.008e27);
         assertEq(strategy.getVariableRateSlope2(),        prevStrategy.getVariableRateSlope2());
         assertEq(prevStrategy.getMaxVariableBorrowRate(), 1.232e27);
-        assertEq(strategy.getMaxVariableBorrowRate(),     1.23023984723902383709e27);
+        assertEq(strategy.getMaxVariableBorrowRate(),     1.2e27 + mockETHYield - 0.008e27);
 
         _triggerUpdate(ETH);
 
@@ -164,7 +164,7 @@ contract SparkLendMainnetIntegrationTest is Test {
     function test_usdc_usdt_market_oracles() public {
         CappedOracle usdcOracle = new CappedOracle(USDC_ORACLE, 1e8);
         CappedOracle usdtOracle = new CappedOracle(USDT_ORACLE, 1e8);
-        
+
         // Nothing is special about these numbers, they just happen to be the price at this block
         assertEq(aaveOracle.getAssetPrice(USDC), 1.00005299e8);
         assertEq(aaveOracle.getAssetPrice(USDT), 0.99961441e8);
