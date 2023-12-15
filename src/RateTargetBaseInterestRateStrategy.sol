@@ -20,7 +20,7 @@ contract RateTargetBaseInterestRateStrategy is VariableBorrowInterestRateStrateg
     uint256 internal immutable _baseVariableBorrowRateSpread;
 
     /**
-     * @dev Constructor.
+     * @dev   Constructor.
      * @param provider                     The address of the PoolAddressesProvider contract.
      * @param rateSource                   The address of the rate source contract.
      * @param optimalUsageRatio            The optimal usage ratio.
