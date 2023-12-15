@@ -20,7 +20,7 @@ import { PotRateSource }                      from "src/PotRateSource.sol";
 import { RateTargetBaseInterestRateStrategy } from "src/RateTargetBaseInterestRateStrategy.sol";
 import { RateTargetKinkInterestRateStrategy } from "src/RateTargetKinkInterestRateStrategy.sol";
 
-// TODO Add capped oracles for WBTC (need to import the combining contract first)
+// TODO: Add capped oracles for WBTC (need to import the combining contract first)
 contract SparkLendMainnetIntegrationTest is Test {
 
     using SafeERC20 for IERC20;
@@ -122,7 +122,7 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_eth_market_irm() public {
-        // TODO Replace with actual ETH yield oracle when ready
+        // TODO: Replace with actual ETH yield oracle when ready
         uint256 mockETHYield = 0.03823984723902383709e27;  // 3.8% (approx APR as of Dec 14, 2023)
         RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
