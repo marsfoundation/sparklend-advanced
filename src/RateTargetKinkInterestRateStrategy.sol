@@ -20,7 +20,7 @@ contract RateTargetKinkInterestRateStrategy is VariableBorrowInterestRateStrateg
     int256 internal immutable _variableRateSlope1Spread;
 
     /**
-     * @dev Constructor.
+     * @dev   Constructor.
      * @param provider                 The address of the PoolAddressesProvider contract.
      * @param rateSource               The address of the rate source contract.
      * @param optimalUsageRatio        The optimal usage ratio.

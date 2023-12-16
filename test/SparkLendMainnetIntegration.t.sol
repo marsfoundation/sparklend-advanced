@@ -53,7 +53,7 @@ contract SparkLendMainnetIntegrationTest is Test {
 
     function test_dai_market_oracle() public {
         FixedPriceOracle oracle = new FixedPriceOracle(1e8);
-        
+
         // Nothing is special about this number, it just happens to be the price at this block
         assertEq(aaveOracle.getAssetPrice(DAI), 0.99982058e8);
 
@@ -164,7 +164,7 @@ contract SparkLendMainnetIntegrationTest is Test {
     function test_usdc_usdt_market_oracles() public {
         CappedOracle usdcOracle = new CappedOracle(USDC_ORACLE, 1e8);
         CappedOracle usdtOracle = new CappedOracle(USDT_ORACLE, 1e8);
-        
+
         // Nothing is special about these numbers, they just happen to be the price at this block
         assertEq(aaveOracle.getAssetPrice(USDC), 1.00005299e8);
         assertEq(aaveOracle.getAssetPrice(USDT), 0.99961441e8);
