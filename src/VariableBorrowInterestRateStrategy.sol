@@ -14,7 +14,7 @@ import { WadRayMath }     from 'aave-v3-core/contracts/protocol/libraries/math/W
 
 /**
  * @title  VariableBorrowInterestRateStrategy contract
- * @author SparkLend
+ * @author Aave
  * @notice Implements the calculation of the interest rates depending on the reserve state.
  * @dev    The model of interest rate is based on 2 slopes, one before the `OPTIMAL_USAGE_RATIO`
  *         point of usage and another from that one to 100%.
@@ -198,9 +198,9 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
         }
 
         // 4. Calculate the liquidity rate by multiplying the current variable borrow rate by
-        //    the supply usage ratio and subtracting the protocol's reserve factor. This yields the
-        //    amount that the lenders are earning based on the interest paid by the borrowers,
-        //    before the protocol's cut, taking into account idle capital.
+        //    the supply usage ratio and multiplying by (100% - the protocol's reserve factor).
+        //    This yields the amount that the lenders are earning based on the interest paid by
+        //    the borrowers, before the protocol's cut, taking into account idle capital.
 
         if (vars.totalDebt != 0) {
             vars.currentLiquidityRate =
