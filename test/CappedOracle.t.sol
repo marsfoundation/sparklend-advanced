@@ -14,7 +14,7 @@ contract CappedOracleTest is Test {
     CappedOracle oracle;
 
     function setUp() public {
-        priceSource = new PriceSourceMock(0.8e8);
+        priceSource = new PriceSourceMock(0.8e8, 8);
         oracle      = new CappedOracle(address(priceSource), 1e8);
     }
 
@@ -23,6 +23,13 @@ contract CappedOracleTest is Test {
         assertEq(oracle.decimals(),     8);
         
         assertEq(address(oracle.source()), address(priceSource));
+    }
+
+    function test_invalid_decimals() public {
+        priceSource.setLatestAnswer(0.8e18);
+        priceSource.setDecimals(18);
+        vm.expectRevert("CappedOracle/invalid-decimals");
+        new CappedOracle(address(priceSource), 1e18);
     }
 
     function test_maxPrice_invalid() public {
