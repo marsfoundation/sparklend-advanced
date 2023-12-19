@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.0;
 
-interface IPriceSource {
-    function latestAnswer() external view returns (int256);
-    function decimals() external view returns (uint8);
-}
+import { IPriceSource } from "./interfaces/IPriceSource.sol";
 
 contract CappedOracle {
 
