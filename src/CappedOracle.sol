@@ -9,7 +9,9 @@ contract CappedOracle {
     int256       public immutable maxPrice;
 
     constructor(address _source, int256 _maxPrice) {
-        require(_maxPrice > 0, "CappedOracle/invalid-max-price");
+        // 8 decimals required as AaveOracle assumes this
+        require(IPriceSource(_source).decimals() == 8, "CappedOracle/invalid-decimals");
+        require(_maxPrice > 0,                         "CappedOracle/invalid-max-price");
         
         source   = IPriceSource(_source);
         maxPrice = _maxPrice;
