@@ -6,6 +6,8 @@ This repository contains advanced features to improve SparkLend beyond the core 
 
 ### Oracles
 
+Please note all these oracles are designed for consumption by `AaveOracle` which assumes 8 decimal places.
+
 [FixedPriceOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/FixedPriceOracle.sol): A hardcoded oracle price that never changes. Used for: DAI market
 
 [CappedOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/CappedOracle.sol): Returns `min(market price, hardcoded max price)`. Used for: USDC/USDT markets
