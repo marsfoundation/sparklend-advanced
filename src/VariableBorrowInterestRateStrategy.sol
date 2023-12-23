@@ -155,7 +155,7 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
 
         // 1. Calculate the total debt and set the current variable borrow rate to the base rate.
 
-        vars.totalDebt = params.totalStableDebt + params.totalVariableDebt;
+        vars.totalDebt = params.totalVariableDebt;
 
         vars.currentLiquidityRate      = 0;
         vars.currentVariableBorrowRate = _getBaseVariableBorrowRate();
