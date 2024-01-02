@@ -153,16 +153,14 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
     {
         CalcInterestRatesLocalVars memory vars;
 
-        // 1. Calculate the total debt and set the current variable borrow rate to the base rate.
-
-        vars.totalDebt = params.totalStableDebt + params.totalVariableDebt;
+        // 1. Set the current variable borrow rate to the base rate.
 
         vars.currentLiquidityRate      = 0;
         vars.currentVariableBorrowRate = _getBaseVariableBorrowRate();
 
         // 2. Calculate the borrow and supply usage ratios.
 
-        if (vars.totalDebt != 0) {
+        if (params.totalVariableDebt != 0) {
             // Calculate the total resulting cash in the reserve after the call is complete.
             vars.availableLiquidity =
                 IERC20(params.reserve).balanceOf(params.aToken) +
@@ -170,16 +168,16 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
                 params.liquidityTaken;
 
             // Calculate the total value of the asset in the reserve (cash + debt).
-            vars.availableLiquidityPlusDebt = vars.availableLiquidity + vars.totalDebt;
+            vars.availableLiquidityPlusDebt = vars.availableLiquidity + params.totalVariableDebt;
 
             // Calculate the borrowUsageRatio (debt / total value).
-            vars.borrowUsageRatio = vars.totalDebt.rayDiv(vars.availableLiquidityPlusDebt);
+            vars.borrowUsageRatio = params.totalVariableDebt.rayDiv(vars.availableLiquidityPlusDebt);
 
             // Calculate the supplyUsageRatio (debt / total value + unbacked).
             // NOTE: The supplyUsageRatio will almost always equal the borrowUsageRatio, except
             //       when unbacked aTokens are minted.
             vars.supplyUsageRatio
-                = vars.totalDebt.rayDiv(vars.availableLiquidityPlusDebt + params.unbacked);
+                = params.totalVariableDebt.rayDiv(vars.availableLiquidityPlusDebt + params.unbacked);
         }
 
         // 3. Calculate the variable borrow rate, using the 2-slope model.
@@ -202,7 +200,7 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
         //    This yields the amount that the lenders are earning based on the interest paid by
         //    the borrowers, before the protocol's cut, taking into account idle capital.
 
-        if (vars.totalDebt != 0) {
+        if (params.totalVariableDebt != 0) {
             vars.currentLiquidityRate =
                 vars.currentVariableBorrowRate
                 .rayMul(vars.supplyUsageRatio)
