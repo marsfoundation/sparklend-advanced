@@ -137,7 +137,6 @@ contract VariableBorrowInterestRateStrategy is IDefaultInterestRateStrategy {
 
     struct CalcInterestRatesLocalVars {
         uint256 availableLiquidity;
-        uint256 totalDebt;
         uint256 currentVariableBorrowRate;
         uint256 currentLiquidityRate;
         uint256 borrowUsageRatio;
