@@ -26,7 +26,7 @@ contract WSTETHExchangeRateOracle {
 
     constructor(address _steth, address _ethSource) {
         // 8 decimals required as AaveOracle assumes this
-        require(IPriceSource(_ethSource).decimals() == 8, "LidoExchangeRateOracle/invalid-decimals");
+        require(IPriceSource(_ethSource).decimals() == 8, "WSTETHExchangeRateOracle/invalid-decimals");
         
         steth     = ILidoStakedEth(_steth);
         ethSource = IPriceSource(_ethSource);
