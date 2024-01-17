@@ -14,8 +14,6 @@ import { IDefaultInterestRateStrategy } from "aave-v3-core/contracts/interfaces/
 import { IERC20 }    from "erc20-helpers/interfaces/IERC20.sol";
 import { SafeERC20 } from "erc20-helpers/SafeERC20.sol";
 
-import { FixedPriceOracle }                   from "src/FixedPriceOracle.sol";
-import { CappedOracle }                       from "src/CappedOracle.sol";
 import { PotRateSource }                      from "src/PotRateSource.sol";
 import { RateTargetBaseInterestRateStrategy } from "src/RateTargetBaseInterestRateStrategy.sol";
 import { RateTargetKinkInterestRateStrategy } from "src/RateTargetKinkInterestRateStrategy.sol";
