@@ -55,4 +55,8 @@ contract RateTargetKinkInterestRateStrategy is VariableBorrowInterestRateStrateg
         return rate > 0 ? uint256(rate) : 0;
     }
 
+    function getVariableRateSlope1Spread() external view returns (int256) {
+        return _variableRateSlope1Spread;
+    }
+
 }

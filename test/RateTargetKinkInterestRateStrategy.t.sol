@@ -50,18 +50,20 @@ contract RateTargetKinkInterestRateStrategyTest is InterestRateStrategyBaseTest 
         assertEq(interestStrategy.MAX_EXCESS_USAGE_RATIO(),                0.2e27);
         assertEq(interestStrategy.MAX_EXCESS_STABLE_TO_TOTAL_DEBT_RATIO(), 1e27);
 
-        assertEq(interestStrategy.getVariableRateSlope1(),     0.035e27);
-        assertEq(interestStrategy.getVariableRateSlope2(),     0.55e27);
-        assertEq(interestStrategy.getStableRateSlope1(),       0);
-        assertEq(interestStrategy.getStableRateSlope2(),       0);
-        assertEq(interestStrategy.getStableRateExcessOffset(), 0);
-        assertEq(interestStrategy.getBaseStableBorrowRate(),   0.035e27);
-        assertEq(interestStrategy.getBaseVariableBorrowRate(), 0.01e27);
-        assertEq(interestStrategy.getMaxVariableBorrowRate(),  0.595e27);
+        assertEq(interestStrategy.getVariableRateSlope1(),       0.035e27);
+        assertEq(interestStrategy.getVariableRateSlope2(),       0.55e27);
+        assertEq(interestStrategy.getStableRateSlope1(),         0);
+        assertEq(interestStrategy.getStableRateSlope2(),         0);
+        assertEq(interestStrategy.getStableRateExcessOffset(),   0);
+        assertEq(interestStrategy.getBaseStableBorrowRate(),     0.035e27);
+        assertEq(interestStrategy.getBaseVariableBorrowRate(),   0.01e27);
+        assertEq(interestStrategy.getMaxVariableBorrowRate(),    0.595e27);
+        assertEq(interestStrategy.getVariableRateSlope1Spread(), -0.005e27);
 
-        assertEq(interestStrategyPositiveSpread.getVariableRateSlope1(),    0.045e27);
-        assertEq(interestStrategyPositiveSpread.getVariableRateSlope2(),    0.55e27);
-        assertEq(interestStrategyPositiveSpread.getMaxVariableBorrowRate(), 0.605e27);
+        assertEq(interestStrategyPositiveSpread.getVariableRateSlope1(),       0.045e27);
+        assertEq(interestStrategyPositiveSpread.getVariableRateSlope2(),       0.55e27);
+        assertEq(interestStrategyPositiveSpread.getMaxVariableBorrowRate(),    0.605e27);
+        assertEq(interestStrategyPositiveSpread.getVariableRateSlope1Spread(), 0.005e27);
     }
 
     function test_rateSource_change_kink_above_base() public {
