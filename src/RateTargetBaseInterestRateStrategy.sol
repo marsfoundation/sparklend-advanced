@@ -52,4 +52,8 @@ contract RateTargetBaseInterestRateStrategy is VariableBorrowInterestRateStrateg
         return apr + _baseVariableBorrowRateSpread;
     }
 
+    function getBaseVariableBorrowRateSpread() external view returns (uint256) {
+        return _baseVariableBorrowRateSpread;
+    }
+
 }
