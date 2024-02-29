@@ -66,7 +66,7 @@ contract WSTETHExchangeRateOracleTest is Test {
         assertEq(oracle.latestAnswer(), 0);
     }
 
-    // Note: exchange rate cannot overflow to negative because it multiplies by
+    // Note: Exchange rate cannot overflow to negative because it multiplies by
     //       the _sharesAmount parameter and divides by total shares.
 
     function test_latestAnswer() public {
