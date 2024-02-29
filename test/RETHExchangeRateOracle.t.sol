@@ -74,7 +74,17 @@ contract RETHExchangeRateOracleTest is Test {
     }
 
     function test_latestAnswer() public {
+        // 1.2 * 2000 = 2400
         assertEq(oracle.latestAnswer(), 2400e8);
+
+        // 1 * 2000 = 2000
+        reth.setExchangeRate(1e18);
+        assertEq(oracle.latestAnswer(), 2000e8);
+
+        // 0.5 * 1200 = 600
+        reth.setExchangeRate(0.5e18);
+        ethSource.setLatestAnswer(1200e8);
+        assertEq(oracle.latestAnswer(), 600e8);
     }
 
 }
