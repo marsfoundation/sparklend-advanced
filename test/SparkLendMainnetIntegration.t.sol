@@ -14,6 +14,8 @@ import { IDefaultInterestRateStrategy } from "aave-v3-core/contracts/interfaces/
 import { IERC20 }    from "erc20-helpers/interfaces/IERC20.sol";
 import { SafeERC20 } from "erc20-helpers/SafeERC20.sol";
 
+import { FixedPriceOracle }                   from "src/FixedPriceOracle.sol";
+import { CappedOracle }                       from "src/CappedOracle.sol";
 import { PotRateSource }                      from "src/PotRateSource.sol";
 import { RateTargetBaseInterestRateStrategy } from "src/RateTargetBaseInterestRateStrategy.sol";
 import { RateTargetKinkInterestRateStrategy } from "src/RateTargetKinkInterestRateStrategy.sol";
@@ -55,6 +57,29 @@ contract SparkLendMainnetIntegrationTest is Test {
 
     function setUp() public {
         vm.createSelectFork(getChain("mainnet").rpcUrl, 19015252);  // Jan 15, 2024
+    }
+
+    function test_dai_market_oracle() public {
+        // Set fork state to before this was introduced
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 18784436);  // Dec 14, 2023
+
+        FixedPriceOracle oracle = new FixedPriceOracle(1e8);
+
+        // Nothing is special about this number, it just happens to be the price at this block
+        assertEq(aaveOracle.getAssetPrice(DAI), 0.99982058e8);
+
+        address[] memory assets = new address[](1);
+        assets[0] = DAI;
+        address[] memory sources = new address[](1);
+        sources[0] = address(oracle);
+
+        vm.prank(ADMIN);
+        aaveOracle.setAssetSources(
+            assets,
+            sources
+        );
+
+        assertEq(aaveOracle.getAssetPrice(DAI), 1e8);
     }
 
     function test_dai_market_irm() public {
@@ -145,6 +170,34 @@ contract SparkLendMainnetIntegrationTest is Test {
 
         // slope1 has adjusted down a bit so the borrow rate is slightly lower at same utilization
         assertEq(_getBorrowRate(ETH), 0.021875235528844931668104031e27);
+    }
+
+    function test_usdc_usdt_market_oracles() public {
+        // Set fork state to before this was introduced
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 18784436);  // Dec 14, 2023
+
+        CappedOracle usdcOracle = new CappedOracle(USDC_ORACLE, 1e8);
+        CappedOracle usdtOracle = new CappedOracle(USDT_ORACLE, 1e8);
+
+        // Nothing is special about these numbers, they just happen to be the price at this block
+        assertEq(aaveOracle.getAssetPrice(USDC), 1.00005299e8);
+        assertEq(aaveOracle.getAssetPrice(USDT), 0.99961441e8);
+
+        address[] memory assets = new address[](2);
+        assets[0] = USDC;
+        assets[1] = USDT;
+        address[] memory sources = new address[](2);
+        sources[0] = address(usdcOracle);
+        sources[1] = address(usdtOracle);
+
+        vm.prank(ADMIN);
+        aaveOracle.setAssetSources(
+            assets,
+            sources
+        );
+
+        assertEq(aaveOracle.getAssetPrice(USDC), 1e8);
+        assertEq(aaveOracle.getAssetPrice(USDT), 0.99961441e8);
     }
 
     function test_usdc_usdt_market_irms() public {
