@@ -29,7 +29,7 @@ contract WSTETHExchangeRateOracle {
     }
 
     function latestAnswer() external view returns (int256) {
-        int256 ethUsd = ethSource.latestAnswer();
+        int256 ethUsd       = ethSource.latestAnswer();
         int256 exchangeRate = int256(steth.getPooledEthByShares(1e18));
 
         if (ethUsd <= 0 || exchangeRate <= 0) {
