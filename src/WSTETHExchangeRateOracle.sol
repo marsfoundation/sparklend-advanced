@@ -14,14 +14,10 @@ interface ILidoStakedEth {
  */
 contract WSTETHExchangeRateOracle {
 
-    /**
-     * @notice Lido staked eth token contract.
-     */
+    /// @notice Lido staked eth token contract.
     ILidoStakedEth public immutable steth;
 
-    /**
-     * @notice The price source for ETH / USD.
-     */
+    /// @notice The price source for ETH / USD.
     IPriceSource public immutable ethSource;
 
     constructor(address _steth, address _ethSource) {

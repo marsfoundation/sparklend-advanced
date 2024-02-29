@@ -14,14 +14,10 @@ interface IRocketPoolStakedEth {
  */
 contract RETHExchangeRateOracle {
 
-    /**
-     * @notice RocketPool staked eth token contract.
-     */
+    /// @notice RocketPool staked eth token contract.
     IRocketPoolStakedEth public immutable reth;
 
-    /**
-     * @notice The price source for ETH / USD.
-     */
+    /// @notice The price source for ETH / USD.
     IPriceSource public immutable ethSource;
 
     constructor(address _reth, address _ethSource) {
