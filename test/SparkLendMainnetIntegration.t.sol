@@ -276,27 +276,6 @@ contract SparkLendMainnetIntegrationTest is Test {
         assertEq(_getBorrowRate(USDT), currentRateUSDT + 0.001602551612415803144238481e27, "after2: USDT mismatch");
     }
 
-    function _getBorrowRate(address asset) internal view returns (uint256) {
-        return pool.getReserveData(asset).currentVariableBorrowRate;
-    }
-
-    function _triggerUpdate(address asset) internal {
-        // Flashloan small amount to force indices update
-        pool.flashLoanSimple(address(this), asset, 1, "", 0);
-    }
-
-    // Flashloan callback
-    function executeOperation(
-        address asset,
-        uint256 amount,
-        uint256 fee,
-        address,
-        bytes calldata
-    ) external returns (bool) {
-        IERC20(asset).safeApprove(msg.sender, amount + fee);
-        return true;
-    }
-
     function test_reth_market_oracle() public {
         RETHExchangeRateOracle oracle = new RETHExchangeRateOracle(RETH, ETHUSD_ORACLE);
 
@@ -341,6 +320,29 @@ contract SparkLendMainnetIntegrationTest is Test {
 
         assertEq(aaveOracle.getAssetPrice(WSTETH),    beforePrice);
         assertEq(aaveOracle.getSourceOfAsset(WSTETH), address(oracle));
+    }
+
+    // ---- Helper Functions ----
+
+    function _getBorrowRate(address asset) internal view returns (uint256) {
+        return pool.getReserveData(asset).currentVariableBorrowRate;
+    }
+
+    function _triggerUpdate(address asset) internal {
+        // Flashloan small amount to force indices update
+        pool.flashLoanSimple(address(this), asset, 1, "", 0);
+    }
+
+    // Flashloan callback
+    function executeOperation(
+        address asset,
+        uint256 amount,
+        uint256 fee,
+        address,
+        bytes calldata
+    ) external returns (bool) {
+        IERC20(asset).safeApprove(msg.sender, amount + fee);
+        return true;
     }
 
 }
