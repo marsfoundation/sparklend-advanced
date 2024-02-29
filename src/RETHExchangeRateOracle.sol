@@ -33,7 +33,7 @@ contract RETHExchangeRateOracle {
     }
 
     function latestAnswer() external view returns (int256) {
-        int256 ethUsd = ethSource.latestAnswer();
+        int256 ethUsd       = ethSource.latestAnswer();
         int256 exchangeRate = int256(reth.getExchangeRate());
 
         if (ethUsd <= 0 || exchangeRate <= 0) {

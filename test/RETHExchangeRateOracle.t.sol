@@ -68,8 +68,8 @@ contract RETHExchangeRateOracleTest is Test {
 
     function test_latestAnswer_negativeExchangeRate() public {
         // RETH ER can't go negative, but it can have a silent overflow
-        assertLt(int256(uint256(type(int256).min)), 0);
-        reth.setExchangeRate(uint256(type(int256).min));
+        assertLt(int256(uint256(int256(-1))), 0);
+        reth.setExchangeRate(uint256(int256(-1)));
         assertEq(oracle.latestAnswer(), 0);
     }
 
