@@ -322,7 +322,9 @@ contract SparkLendMainnetIntegrationTest is Test {
         assertEq(aaveOracle.getSourceOfAsset(WSTETH), address(oracle));
     }
 
-    // ---- Helper Functions ----
+    /**********************************************************************************************/
+    /*** Helper Functions                                                                       ***/
+    /**********************************************************************************************/
 
     function _getBorrowRate(address asset) internal view returns (uint256) {
         return pool.getReserveData(asset).currentVariableBorrowRate;
