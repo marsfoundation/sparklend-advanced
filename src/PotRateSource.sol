@@ -19,4 +19,8 @@ contract PotRateSource is IRateSource {
         return (pot.dsr() - 1e27) * 365 days;
     }
 
+    function decimals() external pure returns (uint8) {
+        return 27;
+    }
+
 }

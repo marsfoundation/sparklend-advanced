@@ -44,6 +44,7 @@ contract RateTargetKinkInterestRateStrategy is VariableBorrowInterestRateStrateg
         variableRateSlope2
     ) {
         RATE_SOURCE = IRateSource(rateSource);
+        require(RATE_SOURCE.decimals() <= 27, "RateTargetKinkInterestRateStrategy/invalid-rate-source-decimals");
 
         _variableRateSlope1Spread = variableRateSlope1Spread;
     }
@@ -51,7 +52,7 @@ contract RateTargetKinkInterestRateStrategy is VariableBorrowInterestRateStrateg
     function _getVariableRateSlope1() internal override view returns (uint256) {
         // We assume all rates are below max int. This is a reasonable assumption because
         // otherwise the rates will be so high that the protocol will stop working
-        int256 rate = int256(RATE_SOURCE.getAPR()) + _variableRateSlope1Spread - int256(_baseVariableBorrowRate);
+        int256 rate = int256(RATE_SOURCE.getAPR() * 10 ** (27 - RATE_SOURCE.decimals())) + _variableRateSlope1Spread - int256(_baseVariableBorrowRate);
         return rate > 0 ? uint256(rate) : 0;
     }
 

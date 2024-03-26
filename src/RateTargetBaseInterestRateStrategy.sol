@@ -43,12 +43,13 @@ contract RateTargetBaseInterestRateStrategy is VariableBorrowInterestRateStrateg
         variableRateSlope2
     ) {
         RATE_SOURCE = IRateSource(rateSource);
+        require(RATE_SOURCE.decimals() <= 27, "RateTargetBaseInterestRateStrategy/invalid-rate-source-decimals");
 
         _baseVariableBorrowRateSpread = baseVariableBorrowRateSpread;
     }
 
     function _getBaseVariableBorrowRate() internal override view returns (uint256) {
-        uint256 apr = RATE_SOURCE.getAPR();
+        uint256 apr = RATE_SOURCE.getAPR() * 10 ** (27 - RATE_SOURCE.decimals());
         return apr + _baseVariableBorrowRateSpread;
     }
 
