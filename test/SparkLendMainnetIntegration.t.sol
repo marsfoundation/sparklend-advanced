@@ -138,7 +138,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
                 provider:                 poolAddressesProvider,
-                rateSource:               address(new RateSourceMock(mockETHYield)),
+                rateSource:               address(new RateSourceMock(mockETHYield, 27)),
                 optimalUsageRatio:        0.9e27,
                 baseVariableBorrowRate:   0,
                 variableRateSlope1Spread: -0.008e27,  // -0.8% spread
