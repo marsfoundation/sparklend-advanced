@@ -90,6 +90,9 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_dai_market_irm() public {
+        // Set fork state to before this was introduced
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 18784436);  // Dec 14, 2023
+        
         RateTargetBaseInterestRateStrategy strategy
             = new RateTargetBaseInterestRateStrategy({
                 provider:                      poolAddressesProvider,
@@ -221,6 +224,9 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_usdc_usdt_market_irms() public {
+        // Set fork state to before this was introduced
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 19015252);  // Jan 15, 2024
+        
         RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
                 provider:                 poolAddressesProvider,
@@ -297,6 +303,9 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_reth_market_oracle() public {
+        // Set fork state to before this was introduced
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 19015252);  // Jan 15, 2024
+        
         RETHExchangeRateOracle oracle = new RETHExchangeRateOracle(RETH, ETHUSD_ORACLE);
 
         // Nothing is special about this number, it just happens to be the price at this block
@@ -320,6 +329,9 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_wsteth_market_oracle() public {
+        // Set fork state to before this was introduced
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 19015252);  // Jan 15, 2024
+        
         WSTETHExchangeRateOracle oracle = new WSTETHExchangeRateOracle(STETH, ETHUSD_ORACLE);
 
         // Nothing is special about this number, it just happens to be the price at this block
