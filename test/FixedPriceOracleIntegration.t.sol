@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import { IAaveOracle } from "aave-v3-core/contracts/interfaces/IAaveOracle.sol";
+import { IAaveOracle } from "sparklend-v1-core/contracts/interfaces/IAaveOracle.sol";
 
 import { FixedPriceOracle } from "../src/FixedPriceOracle.sol";
 

@@ -3,10 +3,11 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import { IPoolAddressesProvider } from "aave-v3-core/contracts/interfaces/IPoolAddressesProvider.sol";
-import { IPool }                  from "aave-v3-core/contracts/interfaces/IPool.sol";
-import { IPoolConfigurator }      from "aave-v3-core/contracts/interfaces/IPoolConfigurator.sol";
-import { IERC20 }                 from "erc20-helpers/interfaces/IERC20.sol";
+import { IPoolAddressesProvider } from "sparklend-v1-core/contracts/interfaces/IPoolAddressesProvider.sol";
+import { IPool }                  from "sparklend-v1-core/contracts/interfaces/IPool.sol";
+import { IPoolConfigurator }      from "sparklend-v1-core/contracts/interfaces/IPoolConfigurator.sol";
+
+import { IERC20 } from "erc20-helpers/interfaces/IERC20.sol";
 
 import { PotRateSource }                      from "../src/PotRateSource.sol";
 import { RateTargetBaseInterestRateStrategy } from "../src/RateTargetBaseInterestRateStrategy.sol";
