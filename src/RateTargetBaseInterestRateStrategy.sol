@@ -20,7 +20,7 @@ contract RateTargetBaseInterestRateStrategy is VariableBorrowInterestRateStrateg
     uint256 internal immutable _baseVariableBorrowRateSpread;
 
     /**
-     * @dev Constructor.
+     * @dev   Constructor.
      * @param provider                     The address of the PoolAddressesProvider contract.
      * @param rateSource                   The address of the rate source contract.
      * @param optimalUsageRatio            The optimal usage ratio.
@@ -50,6 +50,10 @@ contract RateTargetBaseInterestRateStrategy is VariableBorrowInterestRateStrateg
     function _getBaseVariableBorrowRate() internal override view returns (uint256) {
         uint256 apr = RATE_SOURCE.getAPR();
         return apr + _baseVariableBorrowRateSpread;
+    }
+
+    function getBaseVariableBorrowRateSpread() external view returns (uint256) {
+        return _baseVariableBorrowRateSpread;
     }
 
 }
