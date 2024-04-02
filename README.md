@@ -8,9 +8,13 @@ This repository contains advanced features to improve SparkLend beyond the core 
 
 Please note all these oracles are designed for consumption by `AaveOracle` which assumes 8 decimal places.
 
-[FixedPriceOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/FixedPriceOracle.sol): A hardcoded oracle price that never changes. Used for: DAI market
+[FixedPriceOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/FixedPriceOracle.sol): A hardcoded oracle price that never changes. Used for: DAI/USDC/USDT markets
 
-[CappedOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/CappedOracle.sol): Returns `min(market price, hardcoded max price)`. Used for: USDC/USDT markets
+[CappedOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/CappedOracle.sol): Returns `min(market price, hardcoded max price)`. Not currently used.
+
+[WSTETHExchangeRateOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/WSTETHExchangeRateOracle.sol): Provides wstETH/USD by multiplying the wstETH exchange rate by ETH/USD. Used for: wstETH market
+
+[RETHExchangeRateOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/RETHExchangeRateOracle.sol): Provides rETH/USD by multiplying the rETH exchange rate by ETH/USD. Used for: rETH market
 
 ### Custom Interest Rate Strategies
 
