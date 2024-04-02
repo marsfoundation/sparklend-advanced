@@ -12,9 +12,9 @@ Please note all these oracles are designed for consumption by `AaveOracle` which
 
 [CappedOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/CappedOracle.sol): Returns `min(market price, hardcoded max price)`. Not currently used.
 
-[WSTETHExchangeRateOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/WSTETHExchangeRateOracle.sol): Provides wstETH / USD by multiplying the wstETH exchange rate by ETH / USD. Used for: wstETH market
+[WSTETHExchangeRateOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/WSTETHExchangeRateOracle.sol): Provides wstETH/USD by multiplying the wstETH exchange rate by ETH/USD. Used for: wstETH market
 
-[RETHExchangeRateOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/RETHExchangeRateOracle.sol): Provides rETH / USD by multiplying the rETH exchange rate by ETH / USD. Used for: rETH market
+[RETHExchangeRateOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/RETHExchangeRateOracle.sol): Provides rETH/USD by multiplying the rETH exchange rate by ETH/USD. Used for: rETH market
 
 ### Custom Interest Rate Strategies
 
