@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import { IERC20 } from 'aave-v3-core/contracts/dependencies/openzeppelin/contracts/IERC20.sol';
+import { IERC20 } from 'sparklend-v1-core/dependencies/openzeppelin/contracts/IERC20.sol';
 
-import { IDefaultInterestRateStrategy } from 'aave-v3-core/contracts/interfaces/IDefaultInterestRateStrategy.sol';
-import { IPoolAddressesProvider }       from 'aave-v3-core/contracts/interfaces/IPoolAddressesProvider.sol';
-import { IReserveInterestRateStrategy } from 'aave-v3-core/contracts/interfaces/IReserveInterestRateStrategy.sol';
+import { IDefaultInterestRateStrategy } from 'sparklend-v1-core/interfaces/IDefaultInterestRateStrategy.sol';
+import { IPoolAddressesProvider }       from 'sparklend-v1-core/interfaces/IPoolAddressesProvider.sol';
+import { IReserveInterestRateStrategy } from 'sparklend-v1-core/interfaces/IReserveInterestRateStrategy.sol';
 
-import { DataTypes }      from 'aave-v3-core/contracts/protocol/libraries/types/DataTypes.sol';
-import { Errors }         from 'aave-v3-core/contracts/protocol/libraries/helpers/Errors.sol';
-import { PercentageMath } from 'aave-v3-core/contracts/protocol/libraries/math/PercentageMath.sol';
-import { WadRayMath }     from 'aave-v3-core/contracts/protocol/libraries/math/WadRayMath.sol';
+import { DataTypes }      from 'sparklend-v1-core/protocol/libraries/types/DataTypes.sol';
+import { Errors }         from 'sparklend-v1-core/protocol/libraries/helpers/Errors.sol';
+import { PercentageMath } from 'sparklend-v1-core/protocol/libraries/math/PercentageMath.sol';
+import { WadRayMath }     from 'sparklend-v1-core/protocol/libraries/math/WadRayMath.sol';
 
 /**
  * @title  VariableBorrowInterestRateStrategy contract

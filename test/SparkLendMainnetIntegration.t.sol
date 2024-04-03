@@ -3,16 +3,14 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import { RateSourceMock } from "./mocks/RateSourceMock.sol";
-
-import { IAaveOracle }                  from "aave-v3-core/contracts/interfaces/IAaveOracle.sol";
-import { IPoolAddressesProvider }       from "aave-v3-core/contracts/interfaces/IPoolAddressesProvider.sol";
-import { IPool }                        from "aave-v3-core/contracts/interfaces/IPool.sol";
-import { IPoolConfigurator }            from "aave-v3-core/contracts/interfaces/IPoolConfigurator.sol";
-import { IDefaultInterestRateStrategy } from "aave-v3-core/contracts/interfaces/IDefaultInterestRateStrategy.sol";
-
 import { IERC20 }    from "erc20-helpers/interfaces/IERC20.sol";
 import { SafeERC20 } from "erc20-helpers/SafeERC20.sol";
+
+import { IAaveOracle }                  from "sparklend-v1-core/interfaces/IAaveOracle.sol";
+import { IPoolAddressesProvider }       from "sparklend-v1-core/interfaces/IPoolAddressesProvider.sol";
+import { IPool }                        from "sparklend-v1-core/interfaces/IPool.sol";
+import { IPoolConfigurator }            from "sparklend-v1-core/interfaces/IPoolConfigurator.sol";
+import { IDefaultInterestRateStrategy } from "sparklend-v1-core/interfaces/IDefaultInterestRateStrategy.sol";
 
 import { FixedPriceOracle }                   from "src/FixedPriceOracle.sol";
 import { CappedOracle }                       from "src/CappedOracle.sol";
@@ -21,6 +19,8 @@ import { RateTargetBaseInterestRateStrategy } from "src/RateTargetBaseInterestRa
 import { RateTargetKinkInterestRateStrategy } from "src/RateTargetKinkInterestRateStrategy.sol";
 import { RETHExchangeRateOracle }             from "src/RETHExchangeRateOracle.sol";
 import { WSTETHExchangeRateOracle }           from "src/WSTETHExchangeRateOracle.sol";
+
+import { RateSourceMock } from "./mocks/RateSourceMock.sol";
 
 // TODO: Add capped oracles for WBTC (need to import the combining contract first)
 contract SparkLendMainnetIntegrationTest is Test {
