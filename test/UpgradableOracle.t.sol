@@ -27,14 +27,14 @@ contract UpgradableOracleTest is Test {
     }
 
     function test_constructor() public {
-        assertEq(address(oracle.owner()),  owner);
-        assertEq(address(oracle.source()), address(priceSource1));
-
         vm.expectEmit();
         emit OwnershipTransferred(address(0), owner);
         vm.expectEmit();
         emit SourceChanged(address(0), address(priceSource1));
         oracle = new UpgradableOracle(owner, address(priceSource1));
+
+        assertEq(address(oracle.owner()),  owner);
+        assertEq(address(oracle.source()), address(priceSource1));
     }
 
     function test_setSource_notOwner() public {
