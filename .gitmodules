@@ -7,3 +7,6 @@
 [submodule "lib/sparklend-v1-core"]
 	path = lib/sparklend-v1-core
 	url = https://github.com/marsfoundation/sparklend-v1-core
+[submodule "lib/openzeppelin-contracts"]
+	path = lib/openzeppelin-contracts
+	url = https://github.com/openzeppelin/openzeppelin-contracts
