@@ -23,16 +23,18 @@ contract UpgradableOracleTest is Test {
         priceSource1 = new PriceSourceMock(123e8,  8);
         priceSource2 = new PriceSourceMock(456e18, 18);
 
-        vm.expectEmit();
-        emit OwnershipTransferred(address(0), owner);
-        vm.expectEmit();
-        emit SourceChanged(address(0), address(priceSource1));
         oracle = new UpgradableOracle(owner, address(priceSource1));
     }
 
     function test_constructor() public {
         assertEq(address(oracle.owner()),  owner);
         assertEq(address(oracle.source()), address(priceSource1));
+
+        vm.expectEmit();
+        emit OwnershipTransferred(address(0), owner);
+        vm.expectEmit();
+        emit SourceChanged(address(0), address(priceSource1));
+        oracle = new UpgradableOracle(owner, address(priceSource1));
     }
 
     function test_setSource_notOwner() public {
