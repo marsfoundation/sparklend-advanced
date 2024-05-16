@@ -5,9 +5,9 @@ import "forge-std/Test.sol";
 
 import { PriceSourceMock } from "./mocks/PriceSourceMock.sol";
 
-import { UpgradableOracle } from "../src/UpgradableOracle.sol";
+import { MorphoUpgradableOracle } from "../src/MorphoUpgradableOracle.sol";
 
-contract UpgradableOracleTest is Test {
+contract MorphoUpgradableOracleTest is Test {
 
     event SourceChanged(address indexed oldSource, address indexed newSource);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -17,13 +17,13 @@ contract UpgradableOracleTest is Test {
     PriceSourceMock priceSource1;
     PriceSourceMock priceSource2;
 
-    UpgradableOracle oracle;
+    MorphoUpgradableOracle oracle;
 
     function setUp() public {
         priceSource1 = new PriceSourceMock(123e8,  8);
         priceSource2 = new PriceSourceMock(456e18, 18);
 
-        oracle = new UpgradableOracle(owner, address(priceSource1));
+        oracle = new MorphoUpgradableOracle(owner, address(priceSource1));
     }
 
     function test_constructor() public {
@@ -31,7 +31,7 @@ contract UpgradableOracleTest is Test {
         emit OwnershipTransferred(address(0), owner);
         vm.expectEmit();
         emit SourceChanged(address(0), address(priceSource1));
-        oracle = new UpgradableOracle(owner, address(priceSource1));
+        oracle = new MorphoUpgradableOracle(owner, address(priceSource1));
 
         assertEq(address(oracle.owner()),  owner);
         assertEq(address(oracle.source()), address(priceSource1));
@@ -44,8 +44,6 @@ contract UpgradableOracleTest is Test {
 
     function test_setSource() public {
         assertEq(address(oracle.source()), address(priceSource1));
-        assertEq(oracle.latestAnswer(),    123e8);
-        assertEq(oracle.latestAnswer(),    priceSource1.latestAnswer());
         assertEq(oracle.decimals(),        8);
         assertEq(oracle.decimals(),        priceSource1.decimals());
         (, int256 answer,,,) = oracle.latestRoundData();
@@ -57,8 +55,6 @@ contract UpgradableOracleTest is Test {
         oracle.setSource(address(priceSource2));
 
         assertEq(address(oracle.source()), address(priceSource2));
-        assertEq(oracle.latestAnswer(),    456e18);
-        assertEq(oracle.latestAnswer(),    priceSource2.latestAnswer());
         assertEq(oracle.decimals(),        18);
         assertEq(oracle.decimals(),        priceSource2.decimals());
         (, answer,,,) = oracle.latestRoundData();
