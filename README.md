@@ -16,6 +16,8 @@ Please note all these oracles are designed for consumption by `AaveOracle` which
 
 [RETHExchangeRateOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/RETHExchangeRateOracle.sol): Provides rETH/USD by multiplying the rETH exchange rate by ETH/USD. Used for: rETH market
 
+[MorphoUpgradableOracle](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/MorphoUpgradableOracle.sol): Allows Spark Governance to change an oracle for Morpho Blue markets. Planned to be used in Morpho Blue.
+
 ### Custom Interest Rate Strategies
 
 [VariableBorrowInterestRateStrategy](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/VariableBorrowInterestRateStrategy.sol): Modified version of `DefaultReserveInterestRateStrategy` that removes the stable borrow logic.
