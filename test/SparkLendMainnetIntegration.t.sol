@@ -3,16 +3,14 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import { RateSourceMock } from "./mocks/RateSourceMock.sol";
-
-import { IAaveOracle }                  from "aave-v3-core/contracts/interfaces/IAaveOracle.sol";
-import { IPoolAddressesProvider }       from "aave-v3-core/contracts/interfaces/IPoolAddressesProvider.sol";
-import { IPool }                        from "aave-v3-core/contracts/interfaces/IPool.sol";
-import { IPoolConfigurator }            from "aave-v3-core/contracts/interfaces/IPoolConfigurator.sol";
-import { IDefaultInterestRateStrategy } from "aave-v3-core/contracts/interfaces/IDefaultInterestRateStrategy.sol";
-
 import { IERC20 }    from "erc20-helpers/interfaces/IERC20.sol";
 import { SafeERC20 } from "erc20-helpers/SafeERC20.sol";
+
+import { IAaveOracle }                  from "sparklend-v1-core/interfaces/IAaveOracle.sol";
+import { IPoolAddressesProvider }       from "sparklend-v1-core/interfaces/IPoolAddressesProvider.sol";
+import { IPool }                        from "sparklend-v1-core/interfaces/IPool.sol";
+import { IPoolConfigurator }            from "sparklend-v1-core/interfaces/IPoolConfigurator.sol";
+import { IDefaultInterestRateStrategy } from "sparklend-v1-core/interfaces/IDefaultInterestRateStrategy.sol";
 
 import { FixedPriceOracle }                   from "src/FixedPriceOracle.sol";
 import { CappedFallbackRateSource }           from "src/CappedFallbackRateSource.sol";
@@ -22,6 +20,9 @@ import { RateTargetBaseInterestRateStrategy } from "src/RateTargetBaseInterestRa
 import { RateTargetKinkInterestRateStrategy } from "src/RateTargetKinkInterestRateStrategy.sol";
 import { RETHExchangeRateOracle }             from "src/RETHExchangeRateOracle.sol";
 import { WSTETHExchangeRateOracle }           from "src/WSTETHExchangeRateOracle.sol";
+import { WEETHExchangeRateOracle }            from "src/WEETHExchangeRateOracle.sol";
+
+import { RateSourceMock } from "./mocks/RateSourceMock.sol";
 
 interface ITollLike {
     function kiss(address) external;
@@ -46,6 +47,7 @@ contract SparkLendMainnetIntegrationTest is Test {
     address STETH  = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84;
     address WSTETH = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0;
     address RETH   = 0xae78736Cd615f374D3085123A210448E74Fc6393;
+    address WEETH  = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee;
 
     address ETH_IRM       = 0xD7A8461e6aF708a086D8285f8fD900309336347c;
     address USDC_ORACLE   = 0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6;
@@ -352,6 +354,31 @@ contract SparkLendMainnetIntegrationTest is Test {
 
         assertEq(aaveOracle.getAssetPrice(WSTETH),    beforePrice);
         assertEq(aaveOracle.getSourceOfAsset(WSTETH), address(oracle));
+    }
+
+    function test_weeth_market_oracle() public {
+        WEETHExchangeRateOracle oracle = new WEETHExchangeRateOracle(WEETH, ETHUSD_ORACLE);
+
+        vm.expectRevert();  // Not setup yet
+        assertEq(aaveOracle.getAssetPrice(WEETH),    0);
+        assertEq(aaveOracle.getSourceOfAsset(WEETH), address(0));
+
+        address[] memory assets = new address[](1);
+        assets[0] = WEETH;
+        address[] memory sources = new address[](1);
+        sources[0] = address(oracle);
+
+        vm.prank(ADMIN);
+        aaveOracle.setAssetSources(
+            assets,
+            sources
+        );
+
+        // Nothing is special about this number, it just happens to be the price at this block
+        uint256 price = 2580.17606917e8;
+
+        assertEq(aaveOracle.getAssetPrice(WEETH),    price);
+        assertEq(aaveOracle.getSourceOfAsset(WEETH), address(oracle));
     }
 
     /**********************************************************************************************/
