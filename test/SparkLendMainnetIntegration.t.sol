@@ -65,7 +65,7 @@ contract SparkLendMainnetIntegrationTest is Test {
     IPoolConfigurator      configurator          = IPoolConfigurator(POOL_CONFIGURATOR);
 
     function setUp() public {
-        vm.createSelectFork(getChain("mainnet").rpcUrl, 19517732);  // Mar 26, 2024
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 19895484);  // May 18, 2024
     }
 
     function test_dai_market_oracle() public {
@@ -157,8 +157,8 @@ contract SparkLendMainnetIntegrationTest is Test {
         vm.prank(0xc50dFeDb7E93eF7A3DacCAd7987D0960c4e2CD4b);
         ITollLike(LST_RATE_SOURCE).kiss(address(rateSource));
 
-        uint256 ethYield = 0.03088523745828489952e27;  // 3.1% (approx APR as of Mar 26, 2024)
-        uint256 spread   = 0.0015e27;                  // 0.15%
+        uint256 ethYield = 0.028485207053926554e27;  // 2.8% (approx APR as of May 18, 2024)
+        uint256 spread   = 0.0015e27;                // 0.15%
 
         RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
@@ -183,7 +183,7 @@ contract SparkLendMainnetIntegrationTest is Test {
 
         _triggerUpdate(ETH);
 
-        assertEq(_getBorrowRate(ETH), 0.020826179550665081285328364e27);
+        assertEq(_getBorrowRate(ETH), 0.017624470144971981744160716e27);
 
         vm.prank(ADMIN);
         configurator.setReserveInterestRateStrategyAddress(
@@ -194,7 +194,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         _triggerUpdate(ETH);
 
         // slope1 has adjusted down a bit so the borrow rate is slightly lower at same utilization
-        assertEq(_getBorrowRate(ETH), 0.021198075614069814879709228e27);
+        assertEq(_getBorrowRate(ETH), 0.016985713431350567055736333e27);
     }
 
     function test_usdc_usdt_market_oracles() public {
@@ -375,7 +375,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         );
 
         // Nothing is special about this number, it just happens to be the price at this block
-        uint256 price = 2580.17606917e8;
+        uint256 price = 3225.32665359e8;
 
         assertEq(aaveOracle.getAssetPrice(WEETH),    price);
         assertEq(aaveOracle.getSourceOfAsset(WEETH), address(oracle));
