@@ -38,13 +38,10 @@ contract CappedFallbackRateSource is IRateSource {
             // Ignore the error and use the default rate
         }
 
-        if (sourceRate < lowerBound) {
-            return lowerBound;
-        } else if (sourceRate > upperBound) {
-            return upperBound;
-        } else {
-            return sourceRate;
-        }
+        if      (sourceRate < lowerBound) return lowerBound;
+        else if (sourceRate > upperBound) return upperBound;
+
+        return sourceRate;
     }
 
     function decimals() external view override returns (uint8) {
