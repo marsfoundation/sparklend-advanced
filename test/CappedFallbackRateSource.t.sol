@@ -30,23 +30,54 @@ contract CappedFallbackRateSourceTest is Test {
         });
     }
 
-    function test_constructor_invalidBounds() public {
+    function test_constructor_lowerBoundGtUpperBoundBoundary() public {
         vm.expectRevert("CappedFallbackRateSource/invalid-bounds");
         new CappedFallbackRateSource({
             _source:      address(originalSource),
-            _lowerBound:  0.08e18,  // Lower bound is larger than upper bound
+            _lowerBound:  0.01e18 + 1,  // Lower bound is larger than upper bound
             _upperBound:  0.01e18,
-            _defaultRate: 0.03e18
+            _defaultRate: 0.01e18
+        });
+
+        new CappedFallbackRateSource({
+            _source:      address(originalSource),
+            _lowerBound:  0.01e18,
+            _upperBound:  0.01e18,
+            _defaultRate: 0.01e18
         });
     }
 
-    function test_constructor_invalidDefaultRate() public {
+    function test_constructor_defaultRateLtLowerBoundBoundary() public {
         vm.expectRevert("CappedFallbackRateSource/invalid-default-rate");
         new CappedFallbackRateSource({
             _source:      address(originalSource),
             _lowerBound:  0.01e18,
             _upperBound:  0.08e18,
-            _defaultRate: 0.09e18  // Default rate is outside lower and upper bounds
+            _defaultRate: 0.01e18 - 1  // Default rate is below lower bound
+        });
+
+        new CappedFallbackRateSource({
+            _source:      address(originalSource),
+            _lowerBound:  0.01e18,
+            _upperBound:  0.08e18,
+            _defaultRate: 0.01e18
+        });
+    }
+
+    function test_constructor_defaultRateGtUpperBoundBoundary() public {
+        vm.expectRevert("CappedFallbackRateSource/invalid-default-rate");
+        new CappedFallbackRateSource({
+            _source:      address(originalSource),
+            _lowerBound:  0.01e18,
+            _upperBound:  0.08e18,
+            _defaultRate: 0.08e18 + 1  // Default rate is above upper bound
+        });
+
+        new CappedFallbackRateSource({
+            _source:      address(originalSource),
+            _lowerBound:  0.01e18,
+            _upperBound:  0.08e18,
+            _defaultRate: 0.08e18
         });
     }
 
@@ -55,26 +86,49 @@ contract CappedFallbackRateSourceTest is Test {
         assertEq(rateSource.lowerBound(),      0.01e18);
         assertEq(rateSource.upperBound(),      0.08e18);
         assertEq(rateSource.defaultRate(),     0.03e18);
-        assertEq(rateSource.decimals(),        18);
     }
 
-    function test_rateWithinBounds() public {
+    function test_decimals() public {
+        assertEq(rateSource.decimals(), 18);
+
+        originalSource.setDecimals(27);
+
+        assertEq(rateSource.decimals(), 27);
+    }
+
+    function test_getAPR_rateWithinBounds() public {
         assertEq(rateSource.getAPR(), 0.037e18);
     }
 
-    function test_rateBelowLowerBound() public {
-        originalSource.setRate(0.005e18);
+    function test_getAPR_rateBelowLowerBoundBoundary() public {
+        originalSource.setRate(0.01e18 - 1);
         
-        assertEq(rateSource.getAPR(), 0.01e18);
+        assertEq(rateSource.getAPR(), 0.01e18);  // Use lowerBound
+
+        originalSource.setRate(0.01e18);
+
+        assertEq(rateSource.getAPR(), 0.01e18);  // Use sourceRate
+
+        originalSource.setRate(0.01e18 + 1);
+
+        assertEq(rateSource.getAPR(), 0.01e18 + 1);  // Use sourceRate
     }
 
-    function test_rateAboveUpperBound() public {
-        originalSource.setRate(0.1e18);
+    function test_getAPR_rateAboveUpperBoundBoundary() public {
+        originalSource.setRate(0.08e18 + 1);
 
-        assertEq(rateSource.getAPR(), 0.08e18);
+        assertEq(rateSource.getAPR(), 0.08e18);  // Use upperBound
+
+        originalSource.setRate(0.08e18);
+
+        assertEq(rateSource.getAPR(), 0.08e18);  // Use sourceRate
+
+        originalSource.setRate(0.08e18 - 1);
+
+        assertEq(rateSource.getAPR(), 0.08e18 - 1);  // Use sourceRate
     }
 
-    function test_rateReverts() public {
+    function test_getAPR_rateReverts() public {
         rateSource = new CappedFallbackRateSource({
             _source:      address(new RevertingRateSource()),
             _lowerBound:  0.01e18,
