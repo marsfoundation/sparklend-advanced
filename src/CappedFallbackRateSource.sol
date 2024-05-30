@@ -30,18 +30,14 @@ contract CappedFallbackRateSource is IRateSource {
     }
 
     function getAPR() external override view returns (uint256) {
-        uint256 sourceRate = defaultRate;
-
         try source.getAPR() returns (uint256 rate) {
-            sourceRate = rate;
+            if      (rate < lowerBound) return lowerBound;
+            else if (rate > upperBound) return upperBound;
+
+            return rate;
         } catch {
-            // Ignore the error and use the default rate
+            return defaultRate;
         }
-
-        if      (sourceRate < lowerBound) return lowerBound;
-        else if (sourceRate > upperBound) return upperBound;
-
-        return sourceRate;
     }
 
     function decimals() external view override returns (uint8) {
