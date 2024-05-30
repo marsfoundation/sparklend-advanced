@@ -72,8 +72,7 @@ contract RateTargetKinkInterestRateStrategyTest is InterestRateStrategyBaseTest 
         assertEq(interestStrategy.getBaseVariableBorrowRate(), 0.01e27);
         assertEq(interestStrategy.getMaxVariableBorrowRate(),  0.595e27);
 
-        rateSource.setRate(0.07e18);
-        rateSource.setDecimals(18);
+        rateSource.setRate(0.07e27);
 
         assertEq(interestStrategy.getVariableRateSlope1(),     0.055e27);
         assertEq(interestStrategy.getVariableRateSlope2(),     0.55e27);
@@ -107,6 +106,22 @@ contract RateTargetKinkInterestRateStrategyTest is InterestRateStrategyBaseTest 
         assertEq(interestStrategy.getVariableRateSlope2(),     0.55e27);
         assertEq(interestStrategy.getBaseVariableBorrowRate(), 0.01e27);
         assertEq(interestStrategy.getMaxVariableBorrowRate(),  0.56e27);
+    }
+
+    function test_rateSource_changeDecimals() public {
+        assertEq(interestStrategy.getVariableRateSlope1(),     0.035e27);
+        assertEq(interestStrategy.getVariableRateSlope2(),     0.55e27);
+        assertEq(interestStrategy.getBaseVariableBorrowRate(), 0.01e27);
+        assertEq(interestStrategy.getMaxVariableBorrowRate(),  0.595e27);
+
+        // Note that the rate will still convert to 27 decimals even if it's reported at 18
+        rateSource.setRate(0.05e18);
+        rateSource.setDecimals(18);
+
+        assertEq(interestStrategy.getVariableRateSlope1(),     0.035e27);
+        assertEq(interestStrategy.getVariableRateSlope2(),     0.55e27);
+        assertEq(interestStrategy.getBaseVariableBorrowRate(), 0.01e27);
+        assertEq(interestStrategy.getMaxVariableBorrowRate(),  0.595e27);
     }
 
     function test_rateSource_invalidDecimals() public {
