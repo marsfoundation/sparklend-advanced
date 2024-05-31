@@ -13,6 +13,7 @@ import { IPoolConfigurator }            from "sparklend-v1-core/interfaces/IPool
 import { IDefaultInterestRateStrategy } from "sparklend-v1-core/interfaces/IDefaultInterestRateStrategy.sol";
 
 import { FixedPriceOracle }                   from "src/FixedPriceOracle.sol";
+import { CappedFallbackRateSource }           from "src/CappedFallbackRateSource.sol";
 import { CappedOracle }                       from "src/CappedOracle.sol";
 import { PotRateSource }                      from "src/PotRateSource.sol";
 import { RateTargetBaseInterestRateStrategy } from "src/RateTargetBaseInterestRateStrategy.sol";
@@ -22,6 +23,10 @@ import { WSTETHExchangeRateOracle }           from "src/WSTETHExchangeRateOracle
 import { WEETHExchangeRateOracle }            from "src/WEETHExchangeRateOracle.sol";
 
 import { RateSourceMock } from "./mocks/RateSourceMock.sol";
+
+interface ITollLike {
+    function kiss(address) external;
+}
 
 // TODO: Add capped oracles for WBTC (need to import the combining contract first)
 contract SparkLendMainnetIntegrationTest is Test {
@@ -44,7 +49,7 @@ contract SparkLendMainnetIntegrationTest is Test {
     address RETH   = 0xae78736Cd615f374D3085123A210448E74Fc6393;
     address WEETH  = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee;
 
-    address ETH_IRM       = 0xeCe550fB709C85CE9FC999A033447Ee2DF3ce55c;
+    address ETH_IRM       = 0xD7A8461e6aF708a086D8285f8fD900309336347c;
     address USDC_ORACLE   = 0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6;
     address USDT_ORACLE   = 0x3E7d1eAB13ad0104d2750B8863b489D65364e32D;
     address USDC_USDT_IRM = 0xbc8A68B0ab0617D7c90d15bb1601B25d795Dc4c8;  // Note: This is the same for both because the parameters are the same
@@ -52,13 +57,15 @@ contract SparkLendMainnetIntegrationTest is Test {
     address RETH_ORACLE   = 0x05225Cd708bCa9253789C1374e4337a019e99D56;
     address WSTETH_ORACLE = 0x8B6851156023f4f5A66F68BEA80851c3D905Ac93;
 
+    address LST_RATE_SOURCE = 0x08669C836F41AEaD03e3EF81a59f3b8e72EC417A;
+
     IAaveOracle            aaveOracle            = IAaveOracle(AAVE_ORACLE);
     IPoolAddressesProvider poolAddressesProvider = IPoolAddressesProvider(POOL_ADDRESSES_PROVIDER);
     IPool                  pool                  = IPool(POOL);
     IPoolConfigurator      configurator          = IPoolConfigurator(POOL_CONFIGURATOR);
 
     function setUp() public {
-        vm.createSelectFork(getChain("mainnet").rpcUrl, 19015252);  // Jan 15, 2024
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 19895484);  // May 18, 2024
     }
 
     function test_dai_market_oracle() public {
@@ -85,6 +92,9 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_dai_market_irm() public {
+        // Set fork state to before this was introduced
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 18784436);  // Dec 14, 2023
+        
         RateTargetBaseInterestRateStrategy strategy
             = new RateTargetBaseInterestRateStrategy({
                 provider:                      poolAddressesProvider,
@@ -135,15 +145,28 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_eth_market_irm() public {
-        // TODO: Replace with actual ETH yield oracle when ready
-        uint256 mockETHYield = 0.03823984723902383709e27;  // 3.8% (approx APR as of Dec 14, 2023)
+        CappedFallbackRateSource rateSource = new CappedFallbackRateSource({
+            _source:      LST_RATE_SOURCE,
+            _lowerBound:  0.01e18,
+            _upperBound:  0.08e18,
+            _defaultRate: 0.03e18
+        });
+
+        // Need to whitelist the rate source
+        // Use a random authed address on the Chronicle oracle
+        vm.prank(0xc50dFeDb7E93eF7A3DacCAd7987D0960c4e2CD4b);
+        ITollLike(LST_RATE_SOURCE).kiss(address(rateSource));
+
+        uint256 ethYield = 0.028485207053926554e27;  // 2.8% (approx APR as of May 18, 2024)
+        uint256 spread   = 0.0015e27;                // 0.15%
+
         RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
                 provider:                 poolAddressesProvider,
-                rateSource:               address(new RateSourceMock(mockETHYield)),
+                rateSource:               address(rateSource),
                 optimalUsageRatio:        0.9e27,
                 baseVariableBorrowRate:   0,
-                variableRateSlope1Spread: -0.008e27,  // -0.8% spread
+                variableRateSlope1Spread: -int256(spread),
                 variableRateSlope2:       1.2e27
             });
         IDefaultInterestRateStrategy prevStrategy
@@ -152,15 +175,15 @@ contract SparkLendMainnetIntegrationTest is Test {
         _triggerUpdate(ETH);
 
         assertEq(strategy.getBaseVariableBorrowRate(),    prevStrategy.getBaseVariableBorrowRate());
-        assertEq(prevStrategy.getVariableRateSlope1(),    0.032e27);
-        assertEq(strategy.getVariableRateSlope1(),        mockETHYield - 0.008e27);
+        assertEq(prevStrategy.getVariableRateSlope1(),    0.028e27);
+        assertEq(strategy.getVariableRateSlope1(),        ethYield - spread);
         assertEq(strategy.getVariableRateSlope2(),        prevStrategy.getVariableRateSlope2());
-        assertEq(prevStrategy.getMaxVariableBorrowRate(), 1.232e27);
-        assertEq(strategy.getMaxVariableBorrowRate(),     1.2e27 + mockETHYield - 0.008e27);
+        assertEq(prevStrategy.getMaxVariableBorrowRate(), 1.228e27);
+        assertEq(strategy.getMaxVariableBorrowRate(),     1.2e27 + ethYield - spread);
 
         _triggerUpdate(ETH);
 
-        assertEq(_getBorrowRate(ETH), 0.023148514322509339980467652e27);
+        assertEq(_getBorrowRate(ETH), 0.017624470144971981744160716e27);
 
         vm.prank(ADMIN);
         configurator.setReserveInterestRateStrategyAddress(
@@ -171,7 +194,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         _triggerUpdate(ETH);
 
         // slope1 has adjusted down a bit so the borrow rate is slightly lower at same utilization
-        assertEq(_getBorrowRate(ETH), 0.021875235528844931668104031e27);
+        assertEq(_getBorrowRate(ETH), 0.016985713431350567055736333e27);
     }
 
     function test_usdc_usdt_market_oracles() public {
@@ -203,6 +226,9 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_usdc_usdt_market_irms() public {
+        // Set fork state to before this was introduced
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 19015252);  // Jan 15, 2024
+        
         RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
                 provider:                 poolAddressesProvider,
@@ -279,6 +305,9 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_reth_market_oracle() public {
+        // Set fork state to before this was introduced
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 19015252);  // Jan 15, 2024
+        
         RETHExchangeRateOracle oracle = new RETHExchangeRateOracle(RETH, ETHUSD_ORACLE);
 
         // Nothing is special about this number, it just happens to be the price at this block
@@ -302,6 +331,9 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_wsteth_market_oracle() public {
+        // Set fork state to before this was introduced
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 19015252);  // Jan 15, 2024
+        
         WSTETHExchangeRateOracle oracle = new WSTETHExchangeRateOracle(STETH, ETHUSD_ORACLE);
 
         // Nothing is special about this number, it just happens to be the price at this block
@@ -343,7 +375,7 @@ contract SparkLendMainnetIntegrationTest is Test {
         );
 
         // Nothing is special about this number, it just happens to be the price at this block
-        uint256 price = 2580.17606917e8;
+        uint256 price = 3225.32665359e8;
 
         assertEq(aaveOracle.getAssetPrice(WEETH),    price);
         assertEq(aaveOracle.getSourceOfAsset(WEETH), address(oracle));

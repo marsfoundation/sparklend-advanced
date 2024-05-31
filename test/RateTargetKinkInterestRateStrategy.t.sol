@@ -18,7 +18,7 @@ contract RateTargetKinkInterestRateStrategyTest is InterestRateStrategyBaseTest 
     RateTargetKinkInterestRateStrategy interestStrategyPositiveSpread;
 
     function setUp() public {
-        rateSource = new RateSourceMock(0.05e27);
+        rateSource = new RateSourceMock(0.05e27, 27);
 
         interestStrategy = new RateTargetKinkInterestRateStrategy({
             provider: IPoolAddressesProvider(address(123)),
@@ -106,6 +106,37 @@ contract RateTargetKinkInterestRateStrategyTest is InterestRateStrategyBaseTest 
         assertEq(interestStrategy.getVariableRateSlope2(),     0.55e27);
         assertEq(interestStrategy.getBaseVariableBorrowRate(), 0.01e27);
         assertEq(interestStrategy.getMaxVariableBorrowRate(),  0.56e27);
+    }
+
+    function test_rateSource_changeDecimals() public {
+        assertEq(interestStrategy.getVariableRateSlope1(),     0.035e27);
+        assertEq(interestStrategy.getVariableRateSlope2(),     0.55e27);
+        assertEq(interestStrategy.getBaseVariableBorrowRate(), 0.01e27);
+        assertEq(interestStrategy.getMaxVariableBorrowRate(),  0.595e27);
+
+        // Note that the rate will still convert to 27 decimals even if it's reported at 18
+        rateSource.setRate(0.05e18);
+        rateSource.setDecimals(18);
+
+        assertEq(interestStrategy.getVariableRateSlope1(),     0.035e27);
+        assertEq(interestStrategy.getVariableRateSlope2(),     0.55e27);
+        assertEq(interestStrategy.getBaseVariableBorrowRate(), 0.01e27);
+        assertEq(interestStrategy.getMaxVariableBorrowRate(),  0.595e27);
+    }
+
+    function test_rateSource_invalidDecimals() public {
+        rateSource.setRate(0.07e28);
+        rateSource.setDecimals(28);
+
+        vm.expectRevert("RateTargetKinkInterestRateStrategy/invalid-rate-source-decimals");
+        new RateTargetKinkInterestRateStrategy({
+            provider: IPoolAddressesProvider(address(123)),
+            rateSource: address(rateSource),
+            optimalUsageRatio: 0.8e27,
+            baseVariableBorrowRate: 0.01e27,
+            variableRateSlope1Spread: -0.005e27,
+            variableRateSlope2: 0.55e27
+        });
     }
 
 }

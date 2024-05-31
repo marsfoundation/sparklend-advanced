@@ -32,6 +32,8 @@ Please note all these oracles are designed for consumption by `AaveOracle` which
 
 [PotRateSource](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/PotRateSource.sol): Adapter to convert DSR into APR which can be consumed by one of the rate target interest rate strategies. Used for: DAI/USDC/USDT markets
 
+[CappedFallbackRateSource](https://github.com/marsfoundation/sparklend-advanced/blob/master/src/CappedFallbackRateSource.sol): Wraps another rate source, caps the rate and protects against reverts with a fallback value. Used for: ETH market
+
 ## Usage
 
 ```bash

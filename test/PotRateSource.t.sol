@@ -37,6 +37,7 @@ contract PotRateSourceTest is Test {
 
     function test_constructor() public {
         assertEq(address(rateSource.pot()), address(pot));
+        assertEq(rateSource.decimals(),     27);
     }
 
     function test_bad_dsr_value() public {
