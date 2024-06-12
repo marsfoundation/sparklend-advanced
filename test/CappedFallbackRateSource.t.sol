@@ -13,6 +13,22 @@ contract RevertingRateSource {
     }
 }
 
+contract ZeroLengthRevertingRateSource {
+    function getAPR() external pure returns (uint256) {
+        revert();
+    }
+}
+
+contract LargeGasUsageRateSource {
+    function getAPR() external pure returns (uint256) {
+        uint256 result = 0;
+        for (uint256 i = 0; i < 10000; i++) {
+            result += i;
+        }
+        return result;
+    }
+}
+
 contract CappedFallbackRateSourceTest is Test {
 
     RateSourceMock originalSource;
@@ -137,6 +153,33 @@ contract CappedFallbackRateSourceTest is Test {
         });
 
         assertEq(rateSource.getAPR(), 0.03e18);
+    }
+
+    // Example of inner zero-length revert due to explicit revert()
+    // Must ensure the inner contract does not revert with zero-length error
+    function test_getAPR_rateRevertsZeroLength() public {
+        rateSource = new CappedFallbackRateSource({
+            _source:      address(new ZeroLengthRevertingRateSource()),
+            _lowerBound:  0.01e18,
+            _upperBound:  0.08e18,
+            _defaultRate: 0.03e18
+        });
+
+        vm.expectRevert("CappedFallbackRateSource/zero-length-error");
+        rateSource.getAPR();
+    }
+
+    // Example of inner zero-length revert due to OOG
+    function test_getAPR_rateRevertsOutOfGas() public {
+        rateSource = new CappedFallbackRateSource({
+            _source:      address(new LargeGasUsageRateSource()),
+            _lowerBound:  0.01e18,
+            _upperBound:  0.08e18,
+            _defaultRate: 0.03e18
+        });
+
+        vm.expectRevert("CappedFallbackRateSource/zero-length-error");
+        rateSource.getAPR{gas:20000}();
     }
 
 }

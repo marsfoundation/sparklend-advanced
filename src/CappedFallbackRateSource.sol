@@ -35,7 +35,12 @@ contract CappedFallbackRateSource is IRateSource {
             else if (rate > upperBound) return upperBound;
 
             return rate;
-        } catch {
+        } catch (bytes memory err) {
+            // This is a special case where you can trigger the catch in the try-catch by messing with the gas limit to
+            // revert with out of gas (OOG) inside the inner loop. The refund may be enough to cover the remainder of
+            // the execution so we need to check that the revert error is not empty (OOG) to prevent abuse.
+            require(err.length > 0, "CappedFallbackRateSource/zero-length-error");
+
             return defaultRate;
         }
     }
