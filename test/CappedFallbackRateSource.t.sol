@@ -179,7 +179,7 @@ contract CappedFallbackRateSourceTest is Test {
         });
 
         vm.expectRevert("CappedFallbackRateSource/zero-length-error");
-        rateSource.getAPR{gas:20000}();
+        rateSource.getAPR{gas:30000}();
     }
 
 }
