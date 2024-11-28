@@ -19,7 +19,7 @@ contract SUSDSMock {
 
 }
 
-contract PotRateSourceTest is Test {
+contract SSRRateSourceTest is Test {
 
     // To calculate: bc -l <<< 'scale=27; e( l(1.05)/(60 * 60 * 24 * 365) )'
     uint256 constant FIVE_PCT_APY_SSR = 1.000000001547125957863212448e27;

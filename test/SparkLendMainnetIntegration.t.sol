@@ -238,8 +238,11 @@ contract SparkLendMainnetIntegrationTest is Test {
         _triggerUpdate(USDC);
         _triggerUpdate(USDT);
 
-        assertEq(_getBorrowRate(USDC), 0.207489689165388369527167411e27, "before: USDC mismatch");
-        assertEq(_getBorrowRate(USDT), 0.057737691380706874411856558e27, "before: USDT mismatch");
+        uint256 currentRateUSDC = 0.207489689165388369527167411e27;
+        uint256 currentRateUSDT = 0.057737691380706874411856558e27;
+
+        assertEq(_getBorrowRate(USDC), currentRateUSDC, "before: USDC mismatch");
+        assertEq(_getBorrowRate(USDT), currentRateUSDT, "before: USDT mismatch");
 
         vm.startPrank(ADMIN);
         configurator.setReserveInterestRateStrategyAddress(
@@ -256,8 +259,12 @@ contract SparkLendMainnetIntegrationTest is Test {
         _triggerUpdate(USDT);
 
         // Rates will change due to SSR being 1% higher than DSR
-        assertEq(_getBorrowRate(USDC), 0.264906695480144435148836548e27, "after1: USDC mismatch");
-        assertEq(_getBorrowRate(USDT), 0.066310128707421710970337545e27, "after1: USDT mismatch");
+        // The 1% APR change will result in a much higher jump for USDC which is already at ~20% APY
+        uint256 newRateUSDC = 0.264906695480144435148836548e27;
+        uint256 newRateUSDT = 0.066310128707421710970337545e27;
+
+        assertEq(_getBorrowRate(USDC), newRateUSDC, "after1: USDC mismatch");
+        assertEq(_getBorrowRate(USDT), newRateUSDT, "after1: USDT mismatch");
     }
 
     function test_reth_market_oracle() public {
