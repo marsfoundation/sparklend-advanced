@@ -15,14 +15,12 @@ import { IDefaultInterestRateStrategy } from "sparklend-v1-core/interfaces/IDefa
 import { FixedPriceOracle }                   from "src/FixedPriceOracle.sol";
 import { CappedFallbackRateSource }           from "src/CappedFallbackRateSource.sol";
 import { CappedOracle }                       from "src/CappedOracle.sol";
-import { PotRateSource }                      from "src/PotRateSource.sol";
+import { SSRRateSource }                      from "src/SSRRateSource.sol";
 import { RateTargetBaseInterestRateStrategy } from "src/RateTargetBaseInterestRateStrategy.sol";
 import { RateTargetKinkInterestRateStrategy } from "src/RateTargetKinkInterestRateStrategy.sol";
 import { RETHExchangeRateOracle }             from "src/RETHExchangeRateOracle.sol";
 import { WSTETHExchangeRateOracle }           from "src/WSTETHExchangeRateOracle.sol";
 import { WEETHExchangeRateOracle }            from "src/WEETHExchangeRateOracle.sol";
-
-import { RateSourceMock } from "./mocks/RateSourceMock.sol";
 
 interface ITollLike {
     function kiss(address) external;
@@ -37,7 +35,6 @@ contract SparkLendMainnetIntegrationTest is Test {
     address POOL_ADDRESSES_PROVIDER = 0x02C3eA4e34C0cBd694D2adFa2c690EECbC1793eE;
     address POOL                    = 0xC13e21B648A5Ee794902342038FF3aDAB66BE987;
     address POOL_CONFIGURATOR       = 0x542DBa469bdE58FAeE189ffB60C6b49CE60E0738;
-    address POT                     = 0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7;
     address ADMIN                   = 0x3300f198988e4C9C63F75dF86De36421f06af8c4;  // SubDAO Proxy
 
     address DAI    = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
@@ -48,6 +45,7 @@ contract SparkLendMainnetIntegrationTest is Test {
     address WSTETH = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0;
     address RETH   = 0xae78736Cd615f374D3085123A210448E74Fc6393;
     address WEETH  = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee;
+    address SUSDS  = 0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD;
 
     address ETH_IRM       = 0xD7A8461e6aF708a086D8285f8fD900309336347c;
     address USDC_ORACLE   = 0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6;
@@ -92,20 +90,19 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_dai_market_irm() public {
-        // Set fork state to before this was introduced
-        vm.createSelectFork(getChain("mainnet").rpcUrl, 18784436);  // Dec 14, 2023
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 20965077);  // Oct 14, 2024
         
         RateTargetBaseInterestRateStrategy strategy
             = new RateTargetBaseInterestRateStrategy({
                 provider:                      poolAddressesProvider,
-                rateSource:                    address(new PotRateSource(POT)),
+                rateSource:                    address(new SSRRateSource(SUSDS)),
                 optimalUsageRatio:             1e27,
-                baseVariableBorrowRateSpread:  0.005e27,
+                baseVariableBorrowRateSpread:  0,
                 variableRateSlope1:            0,
                 variableRateSlope2:            0
             });
 
-        uint256 currentBorrowRate = 0.053790164207174267760128000e27;
+        uint256 currentBorrowRate = 0.062930507342065968556080000e27;
 
         // Previous borrow rate
         assertEq(_getBorrowRate(DAI), currentBorrowRate);
@@ -119,13 +116,13 @@ contract SparkLendMainnetIntegrationTest is Test {
         // Trigger an update from the new IRM
         _triggerUpdate(DAI);
 
-        // Should be unchanged because the borrow spread is the same for both
-        assertEq(_getBorrowRate(DAI), currentBorrowRate);
+        // Should be approximately unchanged because the spread is 1% lower which cancels the 1% higher SSR
+        assertApproxEqRel(_getBorrowRate(DAI), currentBorrowRate, 0.001e18);
 
         // Change the borrow spread to 1%
         strategy = new RateTargetBaseInterestRateStrategy({
             provider:                     poolAddressesProvider,
-            rateSource:                   address(new PotRateSource(POT)),
+            rateSource:                   address(new SSRRateSource(SUSDS)),
             optimalUsageRatio:            1e27,
             baseVariableBorrowRateSpread: 0.01e27,
             variableRateSlope1:           0,
@@ -140,8 +137,8 @@ contract SparkLendMainnetIntegrationTest is Test {
         // Trigger an update from the new IRM
         _triggerUpdate(DAI);
 
-        // Should be 0.5% higher than before
-        assertEq(_getBorrowRate(DAI), currentBorrowRate + 0.005e27);
+        // Should be 1% higher than before
+        assertApproxEqRel(_getBorrowRate(DAI), currentBorrowRate + 0.01e27, 0.001e18);
     }
 
     function test_eth_market_irm() public {
@@ -226,33 +223,23 @@ contract SparkLendMainnetIntegrationTest is Test {
     }
 
     function test_usdc_usdt_market_irms() public {
-        // Set fork state to before this was introduced
-        vm.createSelectFork(getChain("mainnet").rpcUrl, 19015252);  // Jan 15, 2024
+        vm.createSelectFork(getChain("mainnet").rpcUrl, 20965077);  // Oct 14, 2024
         
         RateTargetKinkInterestRateStrategy strategy
             = new RateTargetKinkInterestRateStrategy({
                 provider:                 poolAddressesProvider,
-                rateSource:               address(new PotRateSource(POT)),
+                rateSource:               address(new SSRRateSource(SUSDS)),
                 optimalUsageRatio:        0.95e27,
                 baseVariableBorrowRate:   0,
-                variableRateSlope1Spread: -0.004e27,  // -0.4% spread
+                variableRateSlope1Spread: 0.01e27,  // 1% spread
                 variableRateSlope2:       0.2e27
             });
-        IDefaultInterestRateStrategy prevStrategy
-            = IDefaultInterestRateStrategy(USDC_USDT_IRM);
-
-        assertEq(strategy.OPTIMAL_USAGE_RATIO(),       prevStrategy.OPTIMAL_USAGE_RATIO());
-        assertEq(strategy.MAX_EXCESS_USAGE_RATIO(),    prevStrategy.MAX_EXCESS_USAGE_RATIO());
-        assertEq(strategy.getBaseVariableBorrowRate(), prevStrategy.getBaseVariableBorrowRate());
-        assertEq(strategy.getVariableRateSlope1(),     prevStrategy.getVariableRateSlope1());
-        assertEq(strategy.getVariableRateSlope2(),     prevStrategy.getVariableRateSlope2());
-        assertEq(strategy.getMaxVariableBorrowRate(),  prevStrategy.getMaxVariableBorrowRate());
 
         _triggerUpdate(USDC);
         _triggerUpdate(USDT);
 
-        uint256 currentRateUSDC = 0.046649006348770788951303144e27;
-        uint256 currentRateUSDT = 0.035889274935287857936106840e27;
+        uint256 currentRateUSDC = 0.207489689165388369527167411e27;
+        uint256 currentRateUSDT = 0.057737691380706874411856558e27;
 
         assertEq(_getBorrowRate(USDC), currentRateUSDC, "before: USDC mismatch");
         assertEq(_getBorrowRate(USDT), currentRateUSDT, "before: USDT mismatch");
@@ -271,37 +258,13 @@ contract SparkLendMainnetIntegrationTest is Test {
         _triggerUpdate(USDC);
         _triggerUpdate(USDT);
 
-        // Should be no change
-        assertEq(_getBorrowRate(USDC), currentRateUSDC, "after1: USDC mismatch");
-        assertEq(_getBorrowRate(USDT), currentRateUSDT, "after1: USDT mismatch");
+        // Rates will change due to SSR being 1% higher than DSR
+        // The 1% APR change will result in a much higher jump for USDC which is already at ~20% APY
+        uint256 newRateUSDC = 0.264906695480144435148836548e27;
+        uint256 newRateUSDT = 0.066310128707421710970337545e27;
 
-        // Test with different parameters
-        strategy = new RateTargetKinkInterestRateStrategy({
-            provider:                 poolAddressesProvider,
-            rateSource:               address(new PotRateSource(POT)),
-            optimalUsageRatio:        0.95e27,
-            baseVariableBorrowRate:   0,
-            variableRateSlope1Spread: -0.002e27,  // -0.2% spread
-            variableRateSlope2:       0.2e27
-        });
-
-        vm.startPrank(ADMIN);
-        configurator.setReserveInterestRateStrategyAddress(
-            USDC,
-            address(strategy)
-        );
-        configurator.setReserveInterestRateStrategyAddress(
-            USDT,
-            address(strategy)
-        );
-        vm.stopPrank();
-
-        _triggerUpdate(USDC);
-        _triggerUpdate(USDT);
-
-        assertEq(_getBorrowRate(USDC), currentRateUSDC + 0.002000000000000000000000000e27, "after2: USDC mismatch");
-        // Almost +0.2%, but utilization is slightly below the kink point
-        assertEq(_getBorrowRate(USDT), currentRateUSDT + 0.001602551612415803144238481e27, "after2: USDT mismatch");
+        assertEq(_getBorrowRate(USDC), newRateUSDC, "after1: USDC mismatch");
+        assertEq(_getBorrowRate(USDT), newRateUSDT, "after1: USDT mismatch");
     }
 
     function test_reth_market_oracle() public {
